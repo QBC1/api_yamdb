@@ -27,3 +27,12 @@ class User(AbstractUser):
     role = models.CharField(choices=ROLE_CHOICES, blank=False, max_length=50)
     email = models.EmailField(
         blank=False, unique=True, max_length=254, verbose_name='email address')
+
+
+class Review(models.Model):
+    """Модель отзыва."""
+    text = models.TextField(max_length=1000, blank=False)
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='reviewer')
+    score = models.IntegerField()
+    pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)

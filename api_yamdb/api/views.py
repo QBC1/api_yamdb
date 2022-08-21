@@ -1,14 +1,17 @@
 import datetime
 import secrets
 
+from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
-from rest_framework import exceptions, status, viewsets
+from rest_framework import exceptions, status, viewsets, mixins
 from rest_framework.response import Response
+from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-from reviews.models import User, UserForRegistarions
+from reviews.models import User, UserForRegistarions, Review
 
-from .permissions import PostRequestPermissions
-from .serializers import CreateUserSerialise, RequestCreateUserSerialise
+from .permissions import PostRequestPermissions, ReviewPermission, ReadOnlyOrAuthor
+from .serializers import CreateUserSerialise, RequestCreateUserSerialise, ReviewSerializer
 
 
 class RequestCreateUserViewSet(viewsets.ModelViewSet):
@@ -80,3 +83,26 @@ class CreateUserViewSet(viewsets.ViewSet):
                 'access': str(refresh.access_token)}
             return Response(data=response, status=status.HTTP_200_OK)
 
+
+class ReviewViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
+                    viewsets.GenericViewSet):
+    serializer_class = ReviewSerializer
+    permission_classes = ReviewPermission
+    pagination_class = LimitOffsetPagination
+    # def get_queryset(self):
+    #     title_id = self.kwargs.get('title_id')
+    #     title = get_object_or_404(Title, id=title_id)
+    #     return title.RELATED_NAME.all()
+
+
+class ReviewIDViewSet(mixins.ListModelMixin, mixins.UpdateModelMixin,
+               mixins.DestroyModelMixin, viewsets.GenericViewSet):
+    serializer_class = ReviewSerializer
+    permission_classes = ReadOnlyOrAuthor
+
+    # def get_queryset(self):
+    #     title_id = self.kwargs.get('title_id')
+    #     title = get_object_or_404(Title, id=title_id)
+    #     review_id = self.kwargs.get('review_id')
+    #     review = get_object_or_404(Review, id=review_id)
+    #     return title.RELATED_NAME.filter(review=review)
