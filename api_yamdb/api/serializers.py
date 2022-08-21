@@ -42,8 +42,3 @@ class UsersSerializer(serializers.ModelSerializer):
             'username', 'email', 'first_name', 'last_name', 'bio', 'role')
         model = User
 
-    def validate_username(self, value):
-        if len(value) < 7:
-            raise exceptions.ValidationError(
-                "Данное имя пользователя уже используется")
-        return value
