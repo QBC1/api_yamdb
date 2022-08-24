@@ -3,15 +3,35 @@ import secrets
 
 from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
-from rest_framework import exceptions, status, viewsets, mixins
+from rest_framework import exceptions, status, viewsets, filters, mixins
 from rest_framework.response import Response
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-from reviews.models import User, UserForRegistarions, Review
+from rest_framework.pagination import (
+    PageNumberPagination,
+    LimitOffsetPagination
+)
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from django_filters.rest_framework import DjangoFilterBackend
 
-from .permissions import PostRequestPermissions, ReviewPermission, ReadOnlyOrAuthor
-from .serializers import CreateUserSerialise, RequestCreateUserSerialise, ReviewSerializer
+from reviews.models import (
+    User, UserForRegistarions,
+    Category, Genre, Title,
+    Review
+)
+from .permissions import (
+    PostRequestPermissions, IsAdminOrReadOnly,
+    ReviewPermission, ReadOnlyOrAuthor
+    
+)
+from .serializers import (
+    CreateUserSerialise, RequestCreateUserSerialise,
+    CategorySerializer, GenreSerializer,
+    TitleCreateSerializer, TitleListSerializer,
+    ReviewSerializer
+)
+from .filters import TitleFilter
 
 
 class RequestCreateUserViewSet(viewsets.ModelViewSet):
@@ -82,6 +102,58 @@ class CreateUserViewSet(viewsets.ViewSet):
                 'refresh': str(refresh),
                 'access': str(refresh.access_token)}
             return Response(data=response, status=status.HTTP_200_OK)
+
+
+# Categories, genres, titles
+class ModelMixins(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet
+):
+    """Вьюсет для наследования"""
+    pass
+
+
+class CategoryViewSet(ModelMixins):
+    """Получаем список категорий."""
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [
+        IsAuthenticatedOrReadOnly,
+        IsAdminOrReadOnly,
+    ]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['=name']
+    lookup_field = 'slug'
+
+
+class GenreViewSet(ModelMixins):
+    """Получаем список жанров."""
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = [
+        IsAuthenticatedOrReadOnly,
+        IsAdminOrReadOnly
+    ]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['=name']
+    lookup_field = 'slug'
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    """Получаем список произведений"""
+    queryset = Title.objects.all()
+    permission_classes = [IsAdminOrReadOnly, ]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = TitleFilter
+    pagination_class = PageNumberPagination
+
+    def get_serializer_class(self):
+        """Возвращает подходящий сериализатор"""
+        if self.action in ('list', 'retrieve'):
+            return TitleListSerializer
+        return TitleCreateSerializer
 
 
 class ReviewViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
