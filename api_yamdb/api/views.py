@@ -1,11 +1,13 @@
 import datetime
 import secrets
 
+from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
 from rest_framework import exceptions, status, viewsets, filters, mixins
 from rest_framework.response import Response
+from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.db.models import Avg
 from rest_framework.pagination import (
     PageNumberPagination,
     LimitOffsetPagination
@@ -15,12 +17,19 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from reviews.models import (
     User, UserForRegistarions,
-    Category, Genre, Title)
-from .permissions import PostRequestPermissions, IsAdminOrReadOnly
+    Category, Genre, Title,
+    Review
+)
+from .permissions import (
+    PostRequestPermissions, IsAdminOrReadOnly,
+    ReviewPermission, ReadOnlyOrAuthor
+    
+)
 from .serializers import (
     CreateUserSerialise, RequestCreateUserSerialise,
     CategorySerializer, GenreSerializer,
-    TitleCreateSerializer, TitleListSerializer
+    TitleCreateSerializer, TitleListSerializer,
+    ReviewSerializer
 )
 from .filters import TitleFilter
 
@@ -141,7 +150,31 @@ class TitleViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
 
     def get_serializer_class(self):
-        """Возвращает класс, который должен использоваться для сериализатора"""
+        """Возвращает подходящий сериализатор"""
         if self.action in ('list', 'retrieve'):
             return TitleListSerializer
         return TitleCreateSerializer
+
+
+class ReviewViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
+                    viewsets.GenericViewSet):
+    serializer_class = ReviewSerializer
+    permission_classes = ReviewPermission
+    pagination_class = LimitOffsetPagination
+    # def get_queryset(self):
+    #     title_id = self.kwargs.get('title_id')
+    #     title = get_object_or_404(Title, id=title_id)
+    #     return title.RELATED_NAME.all()
+
+
+class ReviewIDViewSet(mixins.ListModelMixin, mixins.UpdateModelMixin,
+               mixins.DestroyModelMixin, viewsets.GenericViewSet):
+    serializer_class = ReviewSerializer
+    permission_classes = ReadOnlyOrAuthor
+
+    # def get_queryset(self):
+    #     title_id = self.kwargs.get('title_id')
+    #     title = get_object_or_404(Title, id=title_id)
+    #     review_id = self.kwargs.get('review_id')
+    #     review = get_object_or_404(Review, id=review_id)
+    #     return title.RELATED_NAME.filter(review=review)

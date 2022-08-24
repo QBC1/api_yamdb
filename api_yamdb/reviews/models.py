@@ -97,3 +97,12 @@ class Title(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Review(models.Model):
+    """Модель отзыва."""
+    text = models.TextField(max_length=1000, blank=False)
+    author = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='reviewer')
+    score = models.IntegerField()
+    pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
