@@ -26,7 +26,7 @@ from reviews.models import (
 from .permissions import (
     AdminPermissions, IsAdminOrReadOnly,
     ReviewPermission, ReadOnlyOrAuthor
-    
+
 )
 from .serializers import (
     CreateUserSerialise, RequestCreateUserSerialise,
