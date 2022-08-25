@@ -1,10 +1,14 @@
-from rest_framework import permissions
+from rest_framework import exceptions, permissions
 
 
-class PostRequestPermissions(permissions.BasePermission):
-
+class AdminPermissions(permissions.BasePermission):
     def has_permission(self, request, view):
-        return request.method == 'POST'
+        if hasattr(request.user, 'role'):
+            if request.user.role == 'admin' or request.user.is_staff:
+                return True
+            else:
+                raise exceptions.PermissionDenied()
+        raise exceptions.NotAuthenticated()
 
 
 # Categories, genres, titles

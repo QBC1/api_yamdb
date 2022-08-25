@@ -1,9 +1,12 @@
-import datetime
 import secrets
 
 from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
-from rest_framework import exceptions, status, viewsets, filters, mixins
+from django.shortcuts import get_object_or_404
+
+from rest_framework import (permissions, status, views, viewsets,
+                            exceptions, filters, mixins)
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated
@@ -16,17 +19,18 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django_filters.rest_framework import DjangoFilterBackend
 
 from reviews.models import (
-    User, UserForRegistarions,
+    User,
     Category, Genre, Title,
     Review
 )
 from .permissions import (
-    PostRequestPermissions, IsAdminOrReadOnly,
+    AdminPermissions, IsAdminOrReadOnly,
     ReviewPermission, ReadOnlyOrAuthor
     
 )
 from .serializers import (
     CreateUserSerialise, RequestCreateUserSerialise,
+    UsersSerializer, MeUserSerializer,
     CategorySerializer, GenreSerializer,
     TitleCreateSerializer, TitleListSerializer,
     ReviewSerializer
@@ -34,74 +38,136 @@ from .serializers import (
 from .filters import TitleFilter
 
 
-class RequestCreateUserViewSet(viewsets.ModelViewSet):
+def send_code_by_email(user):
+    username = user.username
+    code = user.confirmation_code
+    email = user.email
+    message = (
+        f'''Для регистрации на сайте пройдите по ссылке:
+            http://127.0.0.1:8000/api/v1/auth/token/
+            с параметрами username: "{username}" confirmation_code="{code}"
+            ''')
+    send_mail(
+        message=message,
+        subject="Регистрация пользователя",
+        recipient_list=[email, ],
+        from_email="registration@yamdb.ru",)
+
+
+class RequestCreateUserViewSet(viewsets.ViewSet):
     queryset = User.objects.all()
     serializer_class = RequestCreateUserSerialise
-    permission_classes = (PostRequestPermissions,)
+    http_method_names = ['post',]
 
-    def perform_create(self, request):
+    def create(self, serializer):
         username = self.request.data.get('username')
         email = self.request.data.get('email')
         code = secrets.token_hex(16)
 
-        if (
-            UserForRegistarions.objects.filter(username=username).exists()
-            or UserForRegistarions.objects.filter(email=email).exists()):
-            raise exceptions.ValidationError("Запрос с такими данными уже был отправлен")
-
-        UserForRegistarions.objects.create(
-            username=username, email=email, confirmation_code=code)
-        message = (
-            f'''Для регистрации на сайте пройдите по ссылке:
-            http://127.0.0.1:8000/api/v1/auth/token/
-            с параметрами username: "{username}" confirmation_code="{code}"
-            ''')
-
-        send_mail(
-            message=message,
-            subject="Регистрация пользователя",
-            recipient_list=[email, ],
-            from_email="registration@yamdb.ru",)
+        if User.objects.filter(username=username).filter(email=email).exists():
+            user = User.objects.get(username=username)
+            send_code_by_email(user)
+            return Response(status=status.HTTP_200_OK)
+        serializer = RequestCreateUserSerialise(data=self.request.data)
+        if serializer.is_valid():
+            serializer.save(confirmation_code=code, role='user')
+            send_code_by_email(serializer.instance)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CreateUserViewSet(viewsets.ViewSet):
-    queryset = UserForRegistarions.objects.all()
+    queryset = User.objects.all()
     serializer_class = CreateUserSerialise
-    permission_classes = (PostRequestPermissions,)
+    http_method_names = ['post',]
 
     def create(self, request):
         username = self.request.data.get('username')
         confirmation_code = self.request.data.get('confirmation_code')
-        life_time_for_request = datetime.datetime.now() - datetime.timedelta(minutes=10)
-        users_for_delete = UserForRegistarions.objects.filter(
-            create_date__lt=life_time_for_request)
-        users_for_delete.delete()
 
-        if not UserForRegistarions.objects.filter(
-            username=username).filter(
-                confirmation_code=confirmation_code).exists():
-            raise exceptions.ValidationError(
-                "Не корректные данные пользователя")
+        if not username or not confirmation_code or username == 'me':
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        user_data = UserForRegistarions.objects.filter(
-            username=username).filter(confirmation_code=confirmation_code)[0]
+        if not User.objects.filter(username=username).exists():
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
-        if user_data and confirmation_code == user_data.confirmation_code:
-            try:
-                user = User.objects.create(
-                    username=username,
-                    email=user_data.email,
-                    role="user")
-            except Exception as e:
-                raise exceptions.ValidationError(
-                    f"Пользователь с данным именем или email уже существует ({e})")
+        if not User.objects.filter(confirmation_code=confirmation_code).exists():
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
-            user_data.delete()
-            refresh = RefreshToken.for_user(user)
-            response = {
-                'refresh': str(refresh),
-                'access': str(refresh.access_token)}
-            return Response(data=response, status=status.HTTP_200_OK)
+        if not User.objects.filter(
+            username=username).filter(confirmation_code=confirmation_code).exists():
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        user = User.objects.get(username=username)
+        refresh = RefreshToken.for_user(user)
+        response = {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token)}
+        return Response(data=response, status=status.HTTP_200_OK)
+
+
+class UserViewSet(viewsets.ViewSet):
+    queryset = User.objects.all()
+    serializer_class = UsersSerializer
+    permission_classes = (permissions.IsAuthenticated, AdminPermissions)
+    pagination_class = PageNumberPagination
+
+    def list(self, request):
+        queryset = User.objects.all()
+        paginator = PageNumberPagination()
+        paginator.page_size = 5
+        result_page = paginator.paginate_queryset(queryset, request)
+        serializer = UsersSerializer(result_page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
+    def create(self, request):
+        serializer = UsersSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def retrieve(self, request, pk=None):
+        user = get_object_or_404(User, username=pk)
+        serializer = UsersSerializer(user)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    def partial_update(self, request, pk=None):
+        user = get_object_or_404(User, username=pk)
+        serializer = UsersSerializer(user, request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save(data=request.data)
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, pk=None):
+        if pk == 'me':
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        user = get_object_or_404(User, username=pk)
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class MeUser(views.APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request):
+        user = get_object_or_404(User, username=request.user.username)
+        serializer = MeUserSerializer(user)
+        return Response(serializer.data)
+
+    def patch(self, request):
+        data = request.data.copy()
+        user = get_object_or_404(User, username=request.user.username)
+        if user.role == 'user':
+            data['role'] = 'user'
+        serializer = MeUserSerializer(user, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save(data=data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Categories, genres, titles
