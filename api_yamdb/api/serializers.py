@@ -4,7 +4,6 @@ from reviews.models import User
 
 
 class RequestCreateUserSerialise(serializers.ModelSerializer):
-
     username = serializers.CharField(max_length=256)
     email = serializers.EmailField(max_length=256)
 
@@ -29,16 +28,20 @@ class RequestCreateUserSerialise(serializers.ModelSerializer):
 
 
 class CreateUserSerialise(serializers.ModelSerializer):
-
     class Meta:
         fields = ('username', 'confirmation_code',)
         model = User
 
 
 class UsersSerializer(serializers.ModelSerializer):
-
     class Meta:
         fields = (
             'username', 'email', 'first_name', 'last_name', 'bio', 'role')
         model = User
 
+
+class MeUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = (
+            'username', 'email', 'first_name', 'last_name', 'bio', 'role')
+        model = User

@@ -1,16 +1,11 @@
-from rest_framework import permissions
+from rest_framework import exceptions, permissions
 
 
-class PostRequestPermissions(permissions.BasePermission):
-
+class AdminPermissions(permissions.BasePermission):
     def has_permission(self, request, view):
-        return request.method == 'POST'
-
-
-class UsersPermissions(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return True
- 
-    # Определяет права на уровне объекта
-    def has_object_permission(self, request, view, obj):
-        return True 
+        if hasattr(request.user, 'role'):
+            if request.user.role == 'admin' or request.user.is_staff:
+                return True
+            else:
+                raise exceptions.PermissionDenied()
+        raise exceptions.NotAuthenticated()
