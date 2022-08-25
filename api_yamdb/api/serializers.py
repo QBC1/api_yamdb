@@ -1,6 +1,10 @@
+import datetime as dt
+
 from rest_framework import exceptions, serializers
 
-from reviews.models import User
+from reviews.models import (User, 
+                            Category, Genre, Title,
+                            Review)
 
 
 class RequestCreateUserSerialise(serializers.ModelSerializer):
@@ -45,3 +49,67 @@ class MeUserSerializer(serializers.ModelSerializer):
         fields = (
             'username', 'email', 'first_name', 'last_name', 'bio', 'role')
         model = User
+
+
+# Categories, genres, titles
+class CategorySerializer(serializers.ModelSerializer):
+    """Список категорий."""
+
+    class Meta:
+        model = Category
+        fields = ('name', 'slug')
+
+
+class GenreSerializer(serializers.ModelSerializer):
+    """Список жанров"""
+
+    class Meta:
+        model = Genre
+        fields = ('name', 'slug')
+
+
+class TitleCreateSerializer(serializers.ModelSerializer):
+    """Запись произведения."""
+
+    category = serializers.SlugRelatedField(
+        slug_field='slug',
+        many=False,
+        queryset=Category.objects.all()
+    )
+    genre = serializers.SlugRelatedField(
+        slug_field='slug',
+        many=True,
+        required=False,
+        queryset=Genre.objects.all()
+    )
+
+    class Meta:
+        model = Title
+        fields = '__all__'
+
+    def validate_year(self, value):
+        current_year = dt.date.today().year
+        if value > current_year:
+            raise serializers.ValidationError(
+                'Год выпуска не может быть больше текущего'
+            )
+        return value
+
+
+class TitleListSerializer(serializers.ModelSerializer):
+    """Чтение произведений."""
+    genre = GenreSerializer(many=True, read_only=True)
+    category = CategorySerializer(read_only=True)
+    rating = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Title
+        fields = '__all__'
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    score = serializers.IntegerField(min_value=1, max_value=10)
+
+    class Meta:
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        model = Review
