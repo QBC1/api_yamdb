@@ -1,43 +1,27 @@
 import secrets
 
 from django.shortcuts import get_object_or_404
-from django.core.mail import send_mail
-
-from rest_framework import (permissions, status, views, viewsets,
-                            exceptions, filters, mixins)
-
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.response import Response
-from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.tokens import RefreshToken
-
-from rest_framework.pagination import (
-    PageNumberPagination,
-    LimitOffsetPagination
-)
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import (filters, mixins, permissions, status, views,
+                            viewsets)
+from rest_framework.pagination import (LimitOffsetPagination,
+                                       PageNumberPagination)
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from reviews.models import Category, Genre, Review, Title, User
 
-from reviews.models import (
-    User,
-    Category, Genre, Title,
-    Review
-)
-from .permissions import (
-    AdminPermissions, IsAdminOrReadOnly,
-    ReviewPermission, ReadOnlyOrAuthor
-
-)
-from .serializers import (
-    CreateUserSerialise, RequestCreateUserSerialise,
-    UsersSerializer, MeUserSerializer,
-    CategorySerializer, GenreSerializer,
-    TitleCreateSerializer, TitleListSerializer,
-    ReviewSerializer
-)
 from .extra_functions import send_code_by_email
 from .filters import TitleFilter
+from .permissions import (AdminPermissions, IsAdminOrReadOnly,
+                          ReadOnlyOrAuthor, ReviewPermission)
+from .serializers import (CategorySerializer, CreateUserSerialise,
+                          GenreSerializer, MeUserSerializer,
+                          RequestCreateUserSerialise, ReviewSerializer,
+                          TitleCreateSerializer, TitleListSerializer,
+                          UsersSerializer)
+
 
 class RequestCreateUserViewSet(viewsets.ViewSet):
     queryset = User.objects.all()
@@ -212,7 +196,7 @@ class ReviewViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
 
 
 class ReviewIDViewSet(mixins.ListModelMixin, mixins.UpdateModelMixin,
-               mixins.DestroyModelMixin, viewsets.GenericViewSet):
+                      mixins.DestroyModelMixin, viewsets.GenericViewSet):
     serializer_class = ReviewSerializer
     permission_classes = ReadOnlyOrAuthor
 
