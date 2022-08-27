@@ -2,6 +2,8 @@ from rest_framework import exceptions, permissions
 
 
 class AdminPermissions(permissions.BasePermission):
+    """Данный класс используем для работыс зарегистрированными
+    пользователями"""
     def has_permission(self, request, view):
         if hasattr(request.user, 'role'):
             if request.user.role == 'admin' or request.user.is_staff:
@@ -14,7 +16,6 @@ class AdminPermissions(permissions.BasePermission):
 # Categories, genres, titles
 class IsAdminOrReadOnly(permissions.BasePermission):
     """Разрешение редактировать только администраторам."""
-
     def has_permission(self, request, view):
         return (request.method in permissions.SAFE_METHODS
                 or (request.user.is_authenticated
@@ -22,7 +23,13 @@ class IsAdminOrReadOnly(permissions.BasePermission):
                          or request.user.is_superuser)))
 
 
-class IsAdminModeratorOwnerOrReadOnly(permissions.BasePermission):
+class ReadOrOwner(permissions.BasePermission):
+    """Данный класс используем для работы с отзывами"""
+    def has_permission(self, request, view):
+        if request.method not in permissions.SAFE_METHODS:
+            return request.user.is_authenticated
+        return True
+
     def has_object_permission(self, request, view, obj):
         return (request.method in permissions.SAFE_METHODS
                 or request.user.role == 'admin'

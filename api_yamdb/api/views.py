@@ -8,12 +8,11 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from reviews.models import Category, Comment, Genre, Review, Title, User
+from reviews.models import Category, Genre, Review, Title, User
 
 from .extra_functions import send_code_by_email
 from .filters import TitleFilter
-from .permissions import (AdminPermissions, IsAdminModeratorOwnerOrReadOnly,
-                          IsAdminOrReadOnly)
+from .permissions import AdminPermissions, IsAdminOrReadOnly, ReadOrOwner
 from .serializers import (CategorySerializer, CommentSerializer,
                           CreateUserSerialise, GenreSerializer,
                           MeUserSerializer, RequestCreateUserSerialise,
@@ -22,6 +21,7 @@ from .serializers import (CategorySerializer, CommentSerializer,
 
 
 class RequestCreateUserViewSet(viewsets.ViewSet):
+    """Создает пользователя и отправляет код подтверждения на почту"""
     queryset = User.objects.all()
     serializer_class = RequestCreateUserSerialise
     http_method_names = ['post', ]
@@ -31,7 +31,7 @@ class RequestCreateUserViewSet(viewsets.ViewSet):
         email = self.request.data.get('email')
         code = secrets.token_hex(16)
 
-        if User.objects.filter(username=username).filter(email=email).exists():
+        if User.objects.filter(username=username, email=email).exists():
             user = User.objects.get(username=username)
             send_code_by_email(user)
             return Response(status=status.HTTP_200_OK)
@@ -46,6 +46,8 @@ class RequestCreateUserViewSet(viewsets.ViewSet):
 
 
 class CreateUserViewSet(viewsets.ViewSet):
+    """Проверяет код подтверждения и возвращает токен для
+    авторизации пользователя"""
     queryset = User.objects.all()
     serializer_class = CreateUserSerialise
     http_method_names = ['post', ]
@@ -69,6 +71,7 @@ class CreateUserViewSet(viewsets.ViewSet):
 
 
 class UserViewSet(viewsets.ViewSet):
+    """ВьюСет для работы с зарегистрированными пользователями"""
     queryset = User.objects.all()
     serializer_class = UsersSerializer
     permission_classes = (permissions.IsAuthenticated, AdminPermissions)
@@ -111,6 +114,7 @@ class UserViewSet(viewsets.ViewSet):
 
 
 class MeUser(views.APIView):
+    """ВьюСет для работы с персональной страницей по ссылке /users/me/ """
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
@@ -181,24 +185,37 @@ class TitleViewSet(viewsets.ModelViewSet):
             return TitleListSerializer
         return TitleCreateSerializer
 
+    def retrieve(self, request, pk=None):
+        title = get_object_or_404(Title, pk=pk)
+        serializer = TitleListSerializer(title)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class ReviewViewSet(viewsets.ModelViewSet):
+    """Вьюсет для работы с отзывами"""
     serializer_class = ReviewSerializer
-    permission_classes = [IsAdminModeratorOwnerOrReadOnly]
+    permission_classes = [ReadOrOwner, ]
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
         return title.reviews.all()
 
-    def perform_create(self, serializer):
-        title_id = self.kwargs.get('title_id')
-        title = get_object_or_404(Title, id=title_id)
-        serializer.save(author=self.request.user, title=title)
+    def create(self, request, title_id):
+        title = get_object_or_404(Title, pk=title_id)
+        if Review.objects.filter(author=self.request.user,
+                                 title=title).exists():
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        serializer = ReviewSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(title=title, author=self.request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CommentReviewViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAdminModeratorOwnerOrReadOnly]
+    """Вьюсет для работы с коментариями к отзывам"""
+    permission_classes = [ReadOrOwner, ]
     serializer_class = CommentSerializer
     pagination_class = PageNumberPagination
 
