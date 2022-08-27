@@ -5,6 +5,9 @@ from .views import (CategoryViewSet, CommentReviewViewSet, CreateUserViewSet,
                     GenreViewSet, MeUser, RequestCreateUserViewSet,
                     ReviewViewSet, TitleViewSet, UserViewSet)
 
+
+URL = 'v1/'
+
 router = routers.DefaultRouter()
 router.register(r'auth/signup', RequestCreateUserViewSet, basename='signup')
 router.register(r'auth/token', CreateUserViewSet, basename='token')
@@ -18,6 +21,6 @@ router.register(r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)'
                 r'/comments', CommentReviewViewSet, basename='comments')
 
 urlpatterns = [
-    path('v1/' + 'users/me/', MeUser.as_view()),
-    path('v1/', include(router.urls)),
+    path(URL + 'users/me/', MeUser.as_view()),
+    path(URL, include(router.urls)),
 ]
