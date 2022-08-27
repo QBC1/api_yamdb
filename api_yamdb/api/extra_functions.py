@@ -1,5 +1,6 @@
 from django.core.mail import send_mail
 
+
 def send_code_by_email(user):
     username = user.username
     code = user.confirmation_code
