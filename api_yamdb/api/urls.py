@@ -5,7 +5,6 @@ from .views import (CategoryViewSet, CommentReviewViewSet, CreateUserViewSet,
                     GenreViewSet, MeUser, RequestCreateUserViewSet,
                     ReviewViewSet, TitleViewSet, UserViewSet)
 
-
 URL = 'v1/'
 
 router = routers.DefaultRouter()

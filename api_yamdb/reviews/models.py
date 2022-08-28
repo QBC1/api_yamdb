@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 ROLE_CHOICES = (
@@ -106,9 +107,12 @@ class Review(models.Model):
         User,
         verbose_name='Автор',
         on_delete=models.CASCADE,
-        related_name='reviews'
+        related_name='reviews',
     )
-    score = models.PositiveSmallIntegerField(verbose_name='Рейтинг')
+    score = models.PositiveSmallIntegerField(
+        verbose_name='Рейтинг',
+        validators=[MinValueValidator(1), MaxValueValidator(10)]
+    )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
         auto_now_add=True,
