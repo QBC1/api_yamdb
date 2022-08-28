@@ -8,8 +8,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-from reviews.models import Category, Genre, Review, Title, User
 
+from reviews.models import Category, Genre, Review, Title, User
 from .extra_functions import send_code_by_email
 from .filters import TitleFilter
 from .permissions import AdminPermissions, IsAdminOrReadOnly, ReadOrOwner
