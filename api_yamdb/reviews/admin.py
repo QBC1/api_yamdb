@@ -5,32 +5,27 @@ from .models import Category, Comment, Genre, Review, Title, User
 
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'slug')
-    list_display_links = ('pk', 'name', 'slug')
-    # list_editable = ('name', 'slug')
+    list_display_links = ('pk',)
 
 
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('pk', 'text', 'author', 'pub_date', 'review')
-    list_display_links = ('pk', 'text', 'author')
-    # list_editable = ('text', 'author')
+    list_display_links = ('pk',)
 
 
 class GenreAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'slug')
-    list_display_links = ('pk', 'name', 'slug')
-    # list_editable = ('name', 'slug')
+    list_display_links = ('pk',)
 
 
 class ReviewAdmin(admin.ModelAdmin):
     list_display = ('pk', 'text', 'author', 'title', 'score', 'pub_date')
-    list_display_links = ('pk', 'text', 'author', 'score')
-    # list_editable = ('text', 'author', 'score')
+    list_display_links = ('pk',)
 
 
 class TitleAdmin(admin.ModelAdmin):
     list_display = ('pk', 'name', 'year', 'category', 'description')
-    # list_display_links = ('pk', 'name', 'year', 'category', 'genre')
-    # list_editable = ('name', 'year', 'category', 'genre', 'description')
+    list_display_links = ('pk',)
 
 
 class UserAdmin(admin.ModelAdmin):
