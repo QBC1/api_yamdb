@@ -5,7 +5,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import (filters, mixins, permissions, status, views,
                             viewsets)
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -16,39 +15,28 @@ from .filters import TitleFilter
 from .permissions import AdminPermissions, IsAdminOrReadOnly, ReadOrOwner
 from .serializers import (CategorySerializer, CommentSerializer,
                           CreateUserSerialise, GenreSerializer,
-                          RequestCreateUserSerialise,
-                          ReviewSerializer, TitleCreateSerializer,
-                          TitleListSerializer, UsersSerializer)
+                          RequestCreateUserSerialise, ReviewSerializer,
+                          TitleCreateSerializer, TitleListSerializer,
+                          UsersSerializer)
 
 
-class RequestCreateUserViewSet(viewsets.ModelViewSet):
+class RequestCreateUserViewSet(viewsets.ViewSet):
     """Создает пользователя и отправляет код подтверждения на почту"""
     queryset = User.objects.all()
     serializer_class = RequestCreateUserSerialise
     http_method_names = ['post', ]
 
-    def create(self, serializer):
-        username = self.request.data.get('username')
-        email = self.request.data.get('email')
-        code = secrets.token_hex(16)
-
-        if User.objects.filter(username=username, email=email).exists():
-            user = User.objects.get(username=username)
-            send_code_by_email(user)
-            return Response(status=status.HTTP_200_OK)
-        serializer = RequestCreateUserSerialise(data=self.request.data)
+    def create(self, request):
+        data = {
+            'username': self.request.data.get('username'),
+            'email': self.request.data.get('email'),
+            'confirmation_code': secrets.token_hex(16)
+        }
+        serializer = RequestCreateUserSerialise(data=data)
         if serializer.is_valid(raise_exception=True):
-            serializer.save(confirmation_code=code, role='user')
-            send_code_by_email(serializer.instance)
+            user = User.objects.create(**data)
+            send_code_by_email(user)
             return Response(serializer.data, status=status.HTTP_200_OK)
-
-    # def perform_create(self, serializer):
-    #     username = self.request.data.get('username')
-    #     code = secrets.token_hex(16)
-    #     if serializer.is_valid(raise_exception=True):
-    #         serializer.save(confirmation_code=code, username=username)
-    #         send_code_by_email(serializer.instance)
-    #         return Response(status=status.HTTP_200_OK)
 
 
 class CreateUserViewSet(viewsets.ViewSet):
@@ -59,16 +47,15 @@ class CreateUserViewSet(viewsets.ViewSet):
     http_method_names = ['post', ]
 
     def create(self, request):
-        username = self.request.data.get('username')
-        confirmation_code = self.request.data.get('confirmation_code')
-
-        if not username or not confirmation_code:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        user = get_object_or_404(User, username=username)
-        if user.confirmation_code != confirmation_code:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
+        data = {
+            'username': self.request.data.get('username'),
+            'confirmation_code': self.request.data.get('confirmation_code')
+        }
+        serializer = CreateUserSerialise(data=data)
+        if serializer.is_valid(raise_exception=True):
+            user = get_object_or_404(User, username=data['username'])
+            if user.confirmation_code != data['confirmation_code']:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
         refresh = RefreshToken.for_user(user)
         response = {
             'refresh': str(refresh),
@@ -83,17 +70,10 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated, AdminPermissions)
     pagination_class = PageNumberPagination
 
-    # @action(detail=True, methods='get')
-    # def me_usernames(self, request, pk=None):
-    #     if pk.lower() == 'me':
-    #         serializer = UsersSerializer(request.user)
-    #         return Response(serializer.data)
-
     def retrieve(self, request, pk=None):
-        if pk.lower() != 'me':
-            user = get_object_or_404(User, username=pk)
-            serializer = UsersSerializer(user)
-            return Response(data=serializer.data, status=status.HTTP_200_OK)
+        user = get_object_or_404(User, username=pk)
+        serializer = UsersSerializer(user)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def partial_update(self, request, pk=None):
         user = get_object_or_404(User, username=pk)
@@ -103,8 +83,6 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def destroy(self, request, pk=None):
-        if pk.lower() == 'me':
-            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
         user = get_object_or_404(User, username=pk)
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -115,17 +93,15 @@ class MeUser(views.APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
-        user = get_object_or_404(User, username=request.user.username)
-        serializer = UsersSerializer(user)
+        serializer = UsersSerializer(request.user)
         return Response(serializer.data)
 
     def patch(self, request):
         data = request.data.copy()
-        user = get_object_or_404(User, username=request.user.username)
-        if user.role == 'user':
+        if request.user.is_user:
             data['role'] = 'user'
-        serializer = UsersSerializer(user, data=data, partial=True)
-        if serializer.is_valid():
+        serializer = UsersSerializer(request.user, data=data, partial=True)
+        if serializer.is_valid(raise_exception=True):
             serializer.save(data=data)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -181,11 +157,6 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.action in ('list', 'retrieve'):
             return TitleListSerializer
         return TitleCreateSerializer
-
-    def retrieve(self, request, pk=None):
-        title = get_object_or_404(Title, pk=pk)
-        serializer = TitleListSerializer(title)
-        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

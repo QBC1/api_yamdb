@@ -66,6 +66,16 @@ class CreateUserSerialise(serializers.ModelSerializer):
         fields = ('username', 'confirmation_code',)
         model = User
 
+    def validate_username(self, value):
+        if value:
+            return value
+        raise exceptions.ValidationError()
+
+    def validate_confirmation_code(self, value):
+        if value:
+            return value
+        raise exceptions.ValidationError()
+
 
 class UsersSerializer(serializers.ModelSerializer):
     class Meta:
