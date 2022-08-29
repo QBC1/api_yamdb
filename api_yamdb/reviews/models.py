@@ -21,6 +21,9 @@ class User(AbstractUser):
     data_confirmation_code = models.DateTimeField(
         auto_now_add=True,)
 
+    class Meta:
+        ordering = ['role']
+
     @property
     def is_admin(self):
         return self.role == ADMIN
@@ -48,6 +51,9 @@ class Category(models.Model):
         verbose_name="Category slug",
     )
 
+    class Meta:
+        ordering = ['slug']
+
     def __str__(self):
         return self.slug
 
@@ -64,6 +70,9 @@ class Genre(models.Model):
         unique=True,
         verbose_name="Genre slug",
     )
+
+    class Meta:
+        ordering = ['slug']
 
     def __str__(self):
         return self.slug
