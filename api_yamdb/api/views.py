@@ -1,8 +1,9 @@
 import secrets
 
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import (filters, mixins, permissions, status, views,
+from rest_framework import (filters, permissions, status, views,
                             viewsets)
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -18,6 +19,7 @@ from .serializers import (CategorySerializer, CommentSerializer,
                           RequestCreateUserSerialise, ReviewSerializer,
                           TitleCreateSerializer, TitleListSerializer,
                           UsersSerializer)
+from .mixins import ModelMixins
 
 
 class RequestCreateUserViewSet(viewsets.ViewSet):
@@ -108,16 +110,6 @@ class MeUser(views.APIView):
 
 
 # Categories, genres, titles
-class ModelMixins(
-    mixins.CreateModelMixin,
-    mixins.ListModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet
-):
-    """Вьюсет для наследования"""
-    pass
-
-
 class CategoryViewSet(ModelMixins):
     """Получаем список категорий."""
     queryset = Category.objects.all()
@@ -146,7 +138,9 @@ class GenreViewSet(ModelMixins):
 
 class TitleViewSet(viewsets.ModelViewSet):
     """Получаем список произведений"""
-    queryset = Title.objects.all()
+    queryset = Title.objects.annotate(
+        rating=Avg('reviews__score')
+    ).all().order_by('name')
     permission_classes = [IsAdminOrReadOnly, ]
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter

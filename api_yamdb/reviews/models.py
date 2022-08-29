@@ -3,6 +3,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from api_yamdb.settings import ADMIN, MODERATOR, ROLE_CHOICES, USER
+from .validators import validate_year
 
 
 class User(AbstractUser):
@@ -77,6 +78,7 @@ class Title(models.Model):
     )
     year = models.PositiveSmallIntegerField(
         verbose_name="The year of publishing",
+        validators=[validate_year],
     )
     category = models.ForeignKey(
         Category,
