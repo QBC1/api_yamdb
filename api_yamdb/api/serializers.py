@@ -46,9 +46,12 @@ class RequestCreateUserSerialise(serializers.ModelSerializer):
         if User.objects.filter(username=value).exists():
             raise exceptions.ValidationError(
                 "Данное имя пользователя уже используется")
-        if value == 'me':
+        if value.lower() == 'me':
             raise exceptions.ValidationError(
                 "Нельзя создать пользователя с именем 'me'")
+        if not value:
+            raise exceptions.ValidationError(
+                "Имя пользователя не должно быть пустым")
         return value
 
     def validate_email(self, value):
@@ -65,13 +68,6 @@ class CreateUserSerialise(serializers.ModelSerializer):
 
 
 class UsersSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = (
-            'username', 'email', 'first_name', 'last_name', 'bio', 'role')
-        model = User
-
-
-class MeUserSerializer(serializers.ModelSerializer):
     class Meta:
         fields = (
             'username', 'email', 'first_name', 'last_name', 'bio', 'role')

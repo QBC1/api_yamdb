@@ -5,22 +5,23 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import (filters, mixins, permissions, status, views,
                             viewsets)
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-
 from reviews.models import Category, Genre, Review, Title, User
+
 from .extra_functions import send_code_by_email
 from .filters import TitleFilter
 from .permissions import AdminPermissions, IsAdminOrReadOnly, ReadOrOwner
 from .serializers import (CategorySerializer, CommentSerializer,
                           CreateUserSerialise, GenreSerializer,
-                          MeUserSerializer, RequestCreateUserSerialise,
+                          RequestCreateUserSerialise,
                           ReviewSerializer, TitleCreateSerializer,
                           TitleListSerializer, UsersSerializer)
 
 
-class RequestCreateUserViewSet(viewsets.ViewSet):
+class RequestCreateUserViewSet(viewsets.ModelViewSet):
     """Создает пользователя и отправляет код подтверждения на почту"""
     queryset = User.objects.all()
     serializer_class = RequestCreateUserSerialise
@@ -36,13 +37,18 @@ class RequestCreateUserViewSet(viewsets.ViewSet):
             send_code_by_email(user)
             return Response(status=status.HTTP_200_OK)
         serializer = RequestCreateUserSerialise(data=self.request.data)
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             serializer.save(confirmation_code=code, role='user')
             send_code_by_email(serializer.instance)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response(
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # def perform_create(self, serializer):
+    #     username = self.request.data.get('username')
+    #     code = secrets.token_hex(16)
+    #     if serializer.is_valid(raise_exception=True):
+    #         serializer.save(confirmation_code=code, username=username)
+    #         send_code_by_email(serializer.instance)
+    #         return Response(status=status.HTTP_200_OK)
 
 
 class CreateUserViewSet(viewsets.ViewSet):
@@ -70,43 +76,34 @@ class CreateUserViewSet(viewsets.ViewSet):
         return Response(data=response, status=status.HTTP_200_OK)
 
 
-class UserViewSet(viewsets.ViewSet):
+class UserViewSet(viewsets.ModelViewSet):
     """ВьюСет для работы с зарегистрированными пользователями"""
     queryset = User.objects.all()
     serializer_class = UsersSerializer
     permission_classes = (permissions.IsAuthenticated, AdminPermissions)
     pagination_class = PageNumberPagination
 
-    def list(self, request):
-        queryset = User.objects.all()
-        paginator = PageNumberPagination()
-        paginator.page_size = 5
-        result_page = paginator.paginate_queryset(queryset, request)
-        serializer = UsersSerializer(result_page, many=True)
-        return paginator.get_paginated_response(serializer.data)
-
-    def create(self, request):
-        serializer = UsersSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # @action(detail=True, methods='get')
+    # def me_usernames(self, request, pk=None):
+    #     if pk.lower() == 'me':
+    #         serializer = UsersSerializer(request.user)
+    #         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
-        user = get_object_or_404(User, username=pk)
-        serializer = UsersSerializer(user)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+        if pk.lower() != 'me':
+            user = get_object_or_404(User, username=pk)
+            serializer = UsersSerializer(user)
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     def partial_update(self, request, pk=None):
         user = get_object_or_404(User, username=pk)
         serializer = UsersSerializer(user, request.data, partial=True)
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             serializer.save(data=request.data)
             return Response(data=serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, pk=None):
-        if pk == 'me':
+        if pk.lower() == 'me':
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
         user = get_object_or_404(User, username=pk)
         user.delete()
@@ -119,7 +116,7 @@ class MeUser(views.APIView):
 
     def get(self, request):
         user = get_object_or_404(User, username=request.user.username)
-        serializer = MeUserSerializer(user)
+        serializer = UsersSerializer(user)
         return Response(serializer.data)
 
     def patch(self, request):
@@ -127,7 +124,7 @@ class MeUser(views.APIView):
         user = get_object_or_404(User, username=request.user.username)
         if user.role == 'user':
             data['role'] = 'user'
-        serializer = MeUserSerializer(user, data=data, partial=True)
+        serializer = UsersSerializer(user, data=data, partial=True)
         if serializer.is_valid():
             serializer.save(data=data)
             return Response(serializer.data, status=status.HTTP_200_OK)
