@@ -16,9 +16,9 @@ from .filters import TitleFilter
 from .permissions import AdminPermissions, IsAdminOrReadOnly, ReadOrOwner
 from .serializers import (CategorySerializer, CommentSerializer,
                           CreateUserSerialise, GenreSerializer,
-                          MeUserSerializer, RequestCreateUserSerialise,
-                          ReviewSerializer, TitleCreateSerializer,
-                          TitleListSerializer, UsersSerializer)
+                          RequestCreateUserSerialise, ReviewSerializer,
+                          TitleCreateSerializer, TitleListSerializer,
+                          UsersSerializer)
 from .mixins import ModelMixins
 
 
@@ -28,23 +28,17 @@ class RequestCreateUserViewSet(viewsets.ViewSet):
     serializer_class = RequestCreateUserSerialise
     http_method_names = ['post', ]
 
-    def create(self, serializer):
-        username = self.request.data.get('username')
-        email = self.request.data.get('email')
-        code = secrets.token_hex(16)
-
-        if User.objects.filter(username=username, email=email).exists():
-            user = User.objects.get(username=username)
+    def create(self, request):
+        data = {
+            'username': self.request.data.get('username'),
+            'email': self.request.data.get('email'),
+            'confirmation_code': secrets.token_hex(16)
+        }
+        serializer = RequestCreateUserSerialise(data=data)
+        if serializer.is_valid(raise_exception=True):
+            user = User.objects.create(**data)
             send_code_by_email(user)
-            return Response(status=status.HTTP_200_OK)
-        serializer = RequestCreateUserSerialise(data=self.request.data)
-        if serializer.is_valid():
-            serializer.save(confirmation_code=code, role='user')
-            send_code_by_email(serializer.instance)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response(
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CreateUserViewSet(viewsets.ViewSet):
@@ -55,16 +49,15 @@ class CreateUserViewSet(viewsets.ViewSet):
     http_method_names = ['post', ]
 
     def create(self, request):
-        username = self.request.data.get('username')
-        confirmation_code = self.request.data.get('confirmation_code')
-
-        if not username or not confirmation_code:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        user = get_object_or_404(User, username=username)
-        if user.confirmation_code != confirmation_code:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
+        data = {
+            'username': self.request.data.get('username'),
+            'confirmation_code': self.request.data.get('confirmation_code')
+        }
+        serializer = CreateUserSerialise(data=data)
+        if serializer.is_valid(raise_exception=True):
+            user = get_object_or_404(User, username=data['username'])
+            if user.confirmation_code != data['confirmation_code']:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
         refresh = RefreshToken.for_user(user)
         response = {
             'refresh': str(refresh),
@@ -72,27 +65,12 @@ class CreateUserViewSet(viewsets.ViewSet):
         return Response(data=response, status=status.HTTP_200_OK)
 
 
-class UserViewSet(viewsets.ViewSet):
+class UserViewSet(viewsets.ModelViewSet):
     """ВьюСет для работы с зарегистрированными пользователями"""
     queryset = User.objects.all()
     serializer_class = UsersSerializer
     permission_classes = (permissions.IsAuthenticated, AdminPermissions)
     pagination_class = PageNumberPagination
-
-    def list(self, request):
-        queryset = User.objects.all()
-        paginator = PageNumberPagination()
-        paginator.page_size = 5
-        result_page = paginator.paginate_queryset(queryset, request)
-        serializer = UsersSerializer(result_page, many=True)
-        return paginator.get_paginated_response(serializer.data)
-
-    def create(self, request):
-        serializer = UsersSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, pk=None):
         user = get_object_or_404(User, username=pk)
@@ -102,14 +80,11 @@ class UserViewSet(viewsets.ViewSet):
     def partial_update(self, request, pk=None):
         user = get_object_or_404(User, username=pk)
         serializer = UsersSerializer(user, request.data, partial=True)
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             serializer.save(data=request.data)
             return Response(data=serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, pk=None):
-        if pk == 'me':
-            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
         user = get_object_or_404(User, username=pk)
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -120,17 +95,15 @@ class MeUser(views.APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
-        user = get_object_or_404(User, username=request.user.username)
-        serializer = MeUserSerializer(user)
+        serializer = UsersSerializer(request.user)
         return Response(serializer.data)
 
     def patch(self, request):
         data = request.data.copy()
-        user = get_object_or_404(User, username=request.user.username)
-        if user.role == 'user':
+        if request.user.is_user:
             data['role'] = 'user'
-        serializer = MeUserSerializer(user, data=data, partial=True)
-        if serializer.is_valid():
+        serializer = UsersSerializer(request.user, data=data, partial=True)
+        if serializer.is_valid(raise_exception=True):
             serializer.save(data=data)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -190,16 +163,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
         return title.reviews.all()
 
-    def create(self, request, title_id):
-        title = get_object_or_404(Title, pk=title_id)
-        if Review.objects.filter(author=self.request.user,
-                                 title=title).exists():
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-        serializer = ReviewSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(title=title, author=self.request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def perform_create(self, serializer):
+        title_id = self.kwargs.get('title_id')
+        title = get_object_or_404(Title, id=title_id)
+        serializer.save(author=self.request.user, title=title)
 
 
 class CommentReviewViewSet(viewsets.ModelViewSet):

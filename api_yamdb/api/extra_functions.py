@@ -1,5 +1,7 @@
 from django.core.mail import send_mail
 
+from api_yamdb.settings import PROJECT_EMAIL, URL_FOR_GET_TOKEN
+
 
 def send_code_by_email(user):
     username = user.username
@@ -7,11 +9,11 @@ def send_code_by_email(user):
     email = user.email
     message = (
         f'''Для регистрации на сайте пройдите по ссылке:
-            http://127.0.0.1:8000/api/v1/auth/token/
+            {URL_FOR_GET_TOKEN}
             с параметрами username: "{username}" confirmation_code="{code}"
             ''')
     send_mail(
         message=message,
         subject="Регистрация пользователя",
         recipient_list=[email, ],
-        from_email="registration@yamdb.ru",)
+        from_email=PROJECT_EMAIL,)

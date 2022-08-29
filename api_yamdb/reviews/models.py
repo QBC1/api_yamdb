@@ -1,13 +1,9 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+from api_yamdb.settings import ADMIN, MODERATOR, ROLE_CHOICES, USER
 from .validators import validate_year
-
-ROLE_CHOICES = (
-    ('user', 'Пользователь'),
-    ('moderator', 'Модератор'),
-    ('admin', 'Админ'),
-)
 
 
 class User(AbstractUser):
@@ -16,12 +12,26 @@ class User(AbstractUser):
 
     bio = models.TextField(max_length=500, blank=True)
     role = models.CharField(
-        choices=ROLE_CHOICES, blank=True, max_length=50, default='user')
+        choices=ROLE_CHOICES,
+        blank=True, max_length=50,
+        default=USER)
     email = models.EmailField(
         unique=True, blank=False, max_length=254, verbose_name='email address')
     confirmation_code = models.CharField(max_length=50, blank=True)
     data_confirmation_code = models.DateTimeField(
         auto_now_add=True,)
+
+    @property
+    def is_admin(self):
+        return self.role == ADMIN
+
+    @property
+    def is_user(self):
+        return self.role == USER
+
+    @property
+    def is_moderator(self):
+        return self.role == MODERATOR
 
 
 # Categories, genres, titles
@@ -109,9 +119,12 @@ class Review(models.Model):
         User,
         verbose_name='Автор',
         on_delete=models.CASCADE,
-        related_name='reviews'
+        related_name='reviews',
     )
-    score = models.PositiveSmallIntegerField(verbose_name='Рейтинг')
+    score = models.PositiveSmallIntegerField(
+        verbose_name='Рейтинг',
+        validators=[MinValueValidator(1), MaxValueValidator(10)]
+    )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
         auto_now_add=True,

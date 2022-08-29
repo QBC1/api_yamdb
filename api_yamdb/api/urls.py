@@ -1,12 +1,11 @@
 from django.urls import include, path
 from rest_framework import routers
 
+from api_yamdb.settings import VERSION_URL
+
 from .views import (CategoryViewSet, CommentReviewViewSet, CreateUserViewSet,
                     GenreViewSet, MeUser, RequestCreateUserViewSet,
                     ReviewViewSet, TitleViewSet, UserViewSet)
-
-
-URL = 'v1/'
 
 router = routers.DefaultRouter()
 router.register(r'auth/signup', RequestCreateUserViewSet, basename='signup')
@@ -21,6 +20,6 @@ router.register(r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)'
                 r'/comments', CommentReviewViewSet, basename='comments')
 
 urlpatterns = [
-    path(URL + 'users/me/', MeUser.as_view()),
-    path(URL, include(router.urls)),
+    path(VERSION_URL + 'users/me/', MeUser.as_view()),
+    path(VERSION_URL, include(router.urls)),
 ]

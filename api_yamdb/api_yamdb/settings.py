@@ -1,6 +1,21 @@
 import os
 from datetime import timedelta
 
+# detail settup
+PROJECT_EMAIL = 'registration@yamdb.ru'
+URL_FOR_GET_TOKEN = 'http://127.0.0.1:8000/api/v1/auth/token/'
+VERSION_URL = 'v1/'
+
+ADMIN = 'admin'
+MODERATOR = 'moderator'
+USER = 'user'
+ROLE_CHOICES = (
+    (USER, 'Пользователь'),
+    (MODERATOR, 'Модератор'),
+    (ADMIN, 'Админ'),
+)
+
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
