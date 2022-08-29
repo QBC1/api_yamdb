@@ -1,6 +1,3 @@
-import datetime as dt
-
-from django.db.models import Avg
 from rest_framework import exceptions, serializers
 from reviews.models import Category, Comment, Genre, Review, Title, User
 
@@ -100,29 +97,16 @@ class TitleCreateSerializer(serializers.ModelSerializer):
         model = Title
         fields = '__all__'
 
-    def validate_year(self, value):
-        current_year = dt.date.today().year
-        if value > current_year:
-            raise serializers.ValidationError(
-                'Год выпуска не может быть больше текущего'
-            )
-        return value
-
 
 class TitleListSerializer(serializers.ModelSerializer):
     """Чтение произведений."""
     genre = GenreSerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
-    rating = serializers.SerializerMethodField()
+    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Title
         fields = '__all__'
-
-    def get_rating(self, obj):
-        raiting = Review.objects.filter(
-            title=obj.pk).aggregate(Avg('score')).get('score__avg')
-        return raiting
 
 
 class CommentSerializer(serializers.ModelSerializer):

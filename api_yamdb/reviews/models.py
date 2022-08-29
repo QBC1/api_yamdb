@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from .validators import validate_year
+
 ROLE_CHOICES = (
     ('user', 'Пользователь'),
     ('moderator', 'Модератор'),
@@ -66,6 +68,7 @@ class Title(models.Model):
     )
     year = models.PositiveSmallIntegerField(
         verbose_name="The year of publishing",
+        validators=[validate_year],
     )
     category = models.ForeignKey(
         Category,
