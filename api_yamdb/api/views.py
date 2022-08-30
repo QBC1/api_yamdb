@@ -3,7 +3,9 @@ import secrets
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, permissions, status, views, viewsets
+
+from rest_framework import filters, permissions, status, viewsets
+
 from rest_framework.decorators import action, api_view
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -49,43 +51,37 @@ class UserViewSet(viewsets.ModelViewSet):
     """ВьюСет для работы с зарегистрированными пользователями"""
     queryset = User.objects.all()
     serializer_class = UsersSerializer
-    # permission_classes = (permissions.IsAuthenticated, AdminPermissions)
-    pagination_class = PageNumberPagination
+
+    permission_classes = (permissions.IsAuthenticated, AdminPermissions)
+    # pagination_class = PageNumberPagination
 
     def get_object(self):
         user = get_object_or_404(User, username=self.kwargs.get('pk'))
         return user
 
     @action(
-        detail=True,
+        detail=False,
         methods=['get', 'patch'],
         permission_classes=[permissions.IsAuthenticated],
     )
-    def get_user_me(self, request, pk=None):
-        if pk == 'me':
+    def me(self, request):
+
+        if request.method == 'GET':
             serializer = UsersSerializer(request.user)
-            return Response(serializer.data)
-        return Response(
-            serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-class MeUser(views.APIView):
-    """ВьюСет для работы с персональной страницей по ссылке /users/me/ """
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def get(self, request):
-        serializer = UsersSerializer(request.user)
-        return Response(serializer.data)
-
-    def patch(self, request):
-        data = request.data.copy()
-        if request.user.is_user:
-            data['role'] = 'user'
-        serializer = UsersSerializer(request.user, data=data, partial=True)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save(data=data)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        if request.method == 'PATCH':
+            # request.data.get('role')
+            serializer = UsersSerializer(
+                request.user, data=request.data, partial=True)
+            if serializer.is_valid(raise_exception=True):
+                if request.user.is_user or request.user.is_moderator:
+                    serializer.save(role=request.user.role)
+                else:
+                    serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 # Categories, genres, titles

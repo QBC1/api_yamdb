@@ -18,7 +18,6 @@ router.register(r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)'
                 r'/comments', CommentReviewViewSet, basename='comments')
 
 urlpatterns = [
-    # path(VERSION_URL + 'users/me/', MeUser.as_view()),
     path(
         VERSION_URL + 'auth/signup/',
         request_for_registration, name='request_for_registration'),

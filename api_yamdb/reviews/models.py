@@ -23,6 +23,8 @@ class User(AbstractUser):
 
     class Meta:
         ordering = ['role']
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
 
     @property
     def is_admin(self):
@@ -117,7 +119,9 @@ class Title(models.Model):
     class Meta:
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
+
         ordering = ['name']
+
 
     def __str__(self):
         return self.name
