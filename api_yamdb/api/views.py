@@ -3,7 +3,9 @@ import secrets
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+
 from rest_framework import filters, permissions, status, viewsets
+
 from rest_framework.decorators import action, api_view
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -49,6 +51,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """ВьюСет для работы с зарегистрированными пользователями"""
     queryset = User.objects.all()
     serializer_class = UsersSerializer
+
     permission_classes = (permissions.IsAuthenticated, AdminPermissions)
     # pagination_class = PageNumberPagination
 
@@ -65,6 +68,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
         if request.method == 'GET':
             serializer = UsersSerializer(request.user)
+
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         if request.method == 'PATCH':
