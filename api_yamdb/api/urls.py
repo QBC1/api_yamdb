@@ -3,9 +3,9 @@ from rest_framework import routers
 
 from api_yamdb.settings import VERSION_URL
 
-from .views import (CategoryViewSet, CommentReviewViewSet,
-                    GenreViewSet, MeUser,
-                    ReviewViewSet, TitleViewSet, UserViewSet, request_for_registration, confrim_user)
+from .views import (CategoryViewSet, CommentReviewViewSet, GenreViewSet,
+                    ReviewViewSet, TitleViewSet, UserViewSet, confrim_user,
+                    request_for_registration)
 
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet, basename='users')
@@ -18,7 +18,6 @@ router.register(r'titles/(?P<title_id>\d+)/reviews/(?P<review_id>\d+)'
                 r'/comments', CommentReviewViewSet, basename='comments')
 
 urlpatterns = [
-    # path(VERSION_URL + 'users/me/', MeUser.as_view()),
     path(
         VERSION_URL + 'auth/signup/',
         request_for_registration, name='request_for_registration'),
