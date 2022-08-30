@@ -3,8 +3,8 @@ import secrets
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import (filters, permissions, status, views,
-                            viewsets)
+from rest_framework import filters, permissions, status, views, viewsets
+from rest_framework.decorators import action, api_view
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
@@ -13,81 +13,60 @@ from reviews.models import Category, Genre, Review, Title, User
 
 from .extra_functions import send_code_by_email
 from .filters import TitleFilter
+from .mixins import ModelMixins
 from .permissions import AdminPermissions, IsAdminOrReadOnly, ReadOrOwner
 from .serializers import (CategorySerializer, CommentSerializer,
                           CreateUserSerialise, GenreSerializer,
                           RequestCreateUserSerialise, ReviewSerializer,
                           TitleCreateSerializer, TitleListSerializer,
                           UsersSerializer)
-from .mixins import ModelMixins
 
 
-class RequestCreateUserViewSet(viewsets.ViewSet):
-    """Создает пользователя и отправляет код подтверждения на почту"""
-    queryset = User.objects.all()
-    serializer_class = RequestCreateUserSerialise
-    http_method_names = ['post', ]
-
-    def create(self, request):
-        data = {
-            'username': self.request.data.get('username'),
-            'email': self.request.data.get('email'),
-            'confirmation_code': secrets.token_hex(16)
-        }
-        serializer = RequestCreateUserSerialise(data=data)
-        if serializer.is_valid(raise_exception=True):
-            user = User.objects.create(**data)
-            send_code_by_email(user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+@api_view(['POSt', ])
+def request_for_registration(request):
+    serializer = RequestCreateUserSerialise(data=request.data)
+    if serializer.is_valid(raise_exception=True):
+        serializer.save(confirmation_code=secrets.token_hex(16))
+        send_code_by_email(serializer.instance)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class CreateUserViewSet(viewsets.ViewSet):
-    """Проверяет код подтверждения и возвращает токен для
-    авторизации пользователя"""
-    queryset = User.objects.all()
-    serializer_class = CreateUserSerialise
-    http_method_names = ['post', ]
-
-    def create(self, request):
-        data = {
-            'username': self.request.data.get('username'),
-            'confirmation_code': self.request.data.get('confirmation_code')
-        }
-        serializer = CreateUserSerialise(data=data)
-        if serializer.is_valid(raise_exception=True):
-            user = get_object_or_404(User, username=data['username'])
-            if user.confirmation_code != data['confirmation_code']:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-        refresh = RefreshToken.for_user(user)
-        response = {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token)}
-        return Response(data=response, status=status.HTTP_200_OK)
+@api_view(['POST', ])
+def confrim_user(request):
+    serializer = CreateUserSerialise(data=request.data)
+    if serializer.is_valid(raise_exception=True):
+        user = get_object_or_404(User, username=request.data.get('username'))
+        if user.confirmation_code != request.data.get('confirmation_code'):
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+    refresh = RefreshToken.for_user(user)
+    response = {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token)}
+    return Response(data=response, status=status.HTTP_200_OK)
 
 
 class UserViewSet(viewsets.ModelViewSet):
     """ВьюСет для работы с зарегистрированными пользователями"""
     queryset = User.objects.all()
     serializer_class = UsersSerializer
-    permission_classes = (permissions.IsAuthenticated, AdminPermissions)
+    # permission_classes = (permissions.IsAuthenticated, AdminPermissions)
     pagination_class = PageNumberPagination
 
-    def retrieve(self, request, pk=None):
-        user = get_object_or_404(User, username=pk)
-        serializer = UsersSerializer(user)
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+    def get_object(self):
+        user = get_object_or_404(User, username=self.kwargs.get('pk'))
+        return user
 
-    def partial_update(self, request, pk=None):
-        user = get_object_or_404(User, username=pk)
-        serializer = UsersSerializer(user, request.data, partial=True)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save(data=request.data)
-            return Response(data=serializer.data, status=status.HTTP_200_OK)
-
-    def destroy(self, request, pk=None):
-        user = get_object_or_404(User, username=pk)
-        user.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    @action(
+        detail=True,
+        methods=['get', 'patch'],
+        permission_classes=[permissions.IsAuthenticated],
+    )
+    def get_user_me(self, request, pk=None):
+        if pk == 'me':
+            serializer = UsersSerializer(request.user)
+            return Response(serializer.data)
+        return Response(
+            serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class MeUser(views.APIView):

@@ -59,6 +59,7 @@ class RequestCreateUserSerialise(serializers.ModelSerializer):
 
 
 class CreateUserSerialise(serializers.ModelSerializer):
+    username = serializers.CharField(max_length=256)
     class Meta:
         fields = ('username', 'confirmation_code',)
         model = User
