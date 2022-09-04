@@ -83,18 +83,23 @@ python manage.py runserver
 Регистрация пользователей и выдача токенов
 
 POST
+```
     /auth/signup/
+```
 PAYLOAD
+```
     {
     "email": "string",
     "username": "string"
     }
+```
 Responses
+```
     {
     "email": "string",
     "username": "string"
     }
-
+```
 
 ### Дополнительное описание доступно по ip:/redoc/
 
