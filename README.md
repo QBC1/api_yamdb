@@ -82,7 +82,7 @@ python manage.py runserver
 ### /auth/signup/
 
 #### POST
-##### Description:
+##### Описание:
 
 Получить код подтверждения на переданный `email`.
 
@@ -93,12 +93,12 @@ python manage.py runserver
 Поля `email` и `username` должны быть уникальными.
 
 
-##### Parameters
+##### Параметры
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
@@ -108,14 +108,14 @@ python manage.py runserver
 ### /auth/token/
 
 #### POST
-##### Description:
+##### Описание:
 
 Получение JWT-токена в обмен на username и confirmation code.
 
 Права доступа: **Доступно без токена.**
 
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
@@ -126,27 +126,27 @@ python manage.py runserver
 ### /categories/
 
 #### GET
-##### Description:
+##### Описание:
 
 Получить список всех категорий
 
 Права доступа: **Доступно без токена**
 
 
-##### Parameters
+##### Параметры
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
 | search | query | Поиск по названию категории | No | string |
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
 | 200 | Удачное выполнение запроса |
 
 #### POST
-##### Description:
+##### Описание:
 
 Создать категорию.
 
@@ -155,7 +155,7 @@ python manage.py runserver
 Поле `slug` каждой категории должно быть уникальным.
 
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
@@ -164,7 +164,7 @@ python manage.py runserver
 | 401 | Необходим JWT-токен |
 | 403 | Нет прав доступа |
 
-##### Security
+##### Доступ
 
 | Security Schema | Scopes |
 | --- | --- |
@@ -173,20 +173,20 @@ python manage.py runserver
 ### /categories/{slug}/
 
 #### DELETE
-##### Description:
+##### Описание:
 
 Удалить категорию.
 
 Права доступа: **Администратор.**
 
 
-##### Parameters
+##### Параметры
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
 | slug | path | Slug категории | Yes | string |
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
@@ -195,7 +195,7 @@ python manage.py runserver
 | 403 | Нет прав доступа |
 | 404 | Категория не найдена |
 
-##### Security
+##### Доступ
 
 | Security Schema | Scopes |
 | --- | --- |
@@ -204,27 +204,27 @@ python manage.py runserver
 ### /genres/
 
 #### GET
-##### Description:
+##### Описание:
 
 Получить список всех жанров.
 
 Права доступа: **Доступно без токена**
 
 
-##### Parameters
+##### Параметры
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
 | search | query | Поиск по названию жанра | No | string |
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
 | 200 | Удачное выполнение запроса |
 
 #### POST
-##### Description:
+##### Описание:
 
 Добавить жанр.
 
@@ -233,7 +233,7 @@ python manage.py runserver
 Поле `slug` каждого жанра должно быть уникальным.
 
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
@@ -242,7 +242,7 @@ python manage.py runserver
 | 401 | Необходим JWT-токен |
 | 403 | Нет прав доступа |
 
-##### Security
+##### Доступ
 
 | Security Schema | Scopes |
 | --- | --- |
@@ -251,20 +251,20 @@ python manage.py runserver
 ### /genres/{slug}/
 
 #### DELETE
-##### Description:
+##### Описание:
 
 Удалить жанр.
 
 Права доступа: **Администратор**.
 
 
-##### Parameters
+##### Параметры
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
 | slug | path | Slug жанра | Yes | string |
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
@@ -273,7 +273,7 @@ python manage.py runserver
 | 403 | Нет прав доступа |
 | 404 | Жанр не найден |
 
-##### Security
+##### Доступ
 
 | Security Schema | Scopes |
 | --- | --- |
@@ -282,14 +282,14 @@ python manage.py runserver
 ### /titles/
 
 #### GET
-##### Description:
+##### Описание:
 
 Получить список всех объектов.
 
 Права доступа: **Доступно без токена**
 
 
-##### Parameters
+##### Параметры
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
@@ -298,14 +298,14 @@ python manage.py runserver
 | name | query | фильтрует по названию произведения | No | string |
 | year | query | фильтрует по году | No | integer |
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
 | 200 | Удачное выполнение запроса |
 
 #### POST
-##### Description:
+##### Описание:
 
 Добавить новое произведение.
 
@@ -316,12 +316,12 @@ python manage.py runserver
 При добавлении нового произведения требуется указать уже существующие категорию и жанр.
 
 
-##### Parameters
+##### Параметры
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
@@ -330,7 +330,7 @@ python manage.py runserver
 | 401 | Необходим JWT-токен |
 | 403 | Нет прав доступа |
 
-##### Security
+##### Доступ
 
 | Security Schema | Scopes |
 | --- | --- |
@@ -339,7 +339,7 @@ python manage.py runserver
 ### /titles/{titles_id}/
 
 #### GET
-##### Description:
+##### Описание:
 
 Информация о произведении
 
@@ -347,13 +347,13 @@ python manage.py runserver
 Права доступа: **Доступно без токена**
 
 
-##### Parameters
+##### Параметры
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
 | titles_id | path | ID объекта | Yes | integer |
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
@@ -361,7 +361,7 @@ python manage.py runserver
 | 404 | Объект не найден |
 
 #### PATCH
-##### Description:
+##### Описание:
 
 Обновить информацию о произведении
 
@@ -369,13 +369,13 @@ python manage.py runserver
 Права доступа: **Администратор**
 
 
-##### Parameters
+##### Параметры
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
 | titles_id | path | ID объекта | Yes | integer |
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
@@ -384,27 +384,27 @@ python manage.py runserver
 | 403 | Нет прав доступа |
 | 404 | Объект не найден |
 
-##### Security
+##### Доступ
 
 | Security Schema | Scopes |
 | --- | --- |
 | jwt-token | write:admin |
 
 #### DELETE
-##### Description:
+##### Описание:
 
 Удалить произведение.
 
 Права доступа: **Администратор**.
 
 
-##### Parameters
+##### Параметры
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
 | titles_id | path | ID объекта | Yes | integer |
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
@@ -413,7 +413,7 @@ python manage.py runserver
 | 403 | Нет прав доступа |
 | 404 | Произведение не найдено |
 
-##### Security
+##### Доступ
 
 | Security Schema | Scopes |
 | --- | --- |
@@ -422,20 +422,20 @@ python manage.py runserver
 ### /titles/{title_id}/reviews/
 
 #### GET
-##### Description:
+##### Описание:
 
 Получить список всех отзывов.
 
 Права доступа: **Доступно без токена**.
 
 
-##### Parameters
+##### Параметры
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
 | title_id | path | ID произведения | Yes | integer |
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
@@ -443,20 +443,20 @@ python manage.py runserver
 | 404 | Произведение не найдено |
 
 #### POST
-##### Description:
+##### Описание:
 
 Добавить новый отзыв. Пользователь может оставить только один отзыв на произведение.
 
 Права доступа: **Аутентифицированные пользователи.**
 
 
-##### Parameters
+##### Параметры
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
 | title_id | path | ID произведения | Yes | integer |
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
@@ -465,7 +465,7 @@ python manage.py runserver
 | 401 | Необходим JWT-токен |
 | 404 | Произведение не найдено |
 
-##### Security
+##### Доступ
 
 | Security Schema | Scopes |
 | --- | --- |
@@ -474,21 +474,21 @@ python manage.py runserver
 ### /titles/{title_id}/reviews/{review_id}/
 
 #### GET
-##### Description:
+##### Описание:
 
 Получить отзыв по id для указанного произведения.
 
 Права доступа: **Доступно без токена.**
 
 
-##### Parameters
+##### Параметры
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
 | title_id | path | ID произведения | Yes | integer |
 | review_id | path | ID отзыва | Yes | integer |
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
@@ -496,21 +496,21 @@ python manage.py runserver
 | 404 | Произведение или отзыв не найден |
 
 #### PATCH
-##### Description:
+##### Описание:
 
 Частично обновить отзыв по id.
 
 Права доступа: **Автор отзыва, модератор или администратор.**
 
 
-##### Parameters
+##### Параметры
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
 | title_id | path | ID произведения | Yes | integer |
 | review_id | path | ID отзыва | Yes | integer |
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
@@ -520,28 +520,28 @@ python manage.py runserver
 | 403 | Нет прав доступа |
 | 404 | Произведение не найдено |
 
-##### Security
+##### Доступ
 
 | Security Schema | Scopes |
 | --- | --- |
 | jwt-token | write:user,moderator,admin |
 
 #### DELETE
-##### Description:
+##### Описание:
 
 Удалить отзыв по id
 
 Права доступа: **Автор отзыва, модератор или администратор.**
 
 
-##### Parameters
+##### Параметры
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
 | title_id | path | ID произведения | Yes | integer |
 | review_id | path | ID отзыва | Yes | integer |
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
@@ -550,7 +550,7 @@ python manage.py runserver
 | 403 | Нет прав доступа |
 | 404 | Произведение или отзыв не найдены |
 
-##### Security
+##### Доступ
 
 | Security Schema | Scopes |
 | --- | --- |
@@ -559,21 +559,21 @@ python manage.py runserver
 ### /titles/{title_id}/reviews/{review_id}/comments/
 
 #### GET
-##### Description:
+##### Описание:
 
 Получить список всех комментариев к отзыву по id
 
 Права доступа: **Доступно без токена.**
 
 
-##### Parameters
+##### Параметры
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
 | title_id | path | ID произведения | Yes | integer |
 | review_id | path | ID отзыва | Yes | integer |
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
@@ -581,21 +581,21 @@ python manage.py runserver
 | 404 | Не найдено произведение или отзыв |
 
 #### POST
-##### Description:
+##### Описание:
 
 Добавить новый комментарий для отзыва.
 
 Права доступа: **Аутентифицированные пользователи.**
 
 
-##### Parameters
+##### Параметры
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
 | title_id | path | ID произведения | Yes | integer |
 | review_id | path | ID отзыва | Yes | integer |
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
@@ -604,7 +604,7 @@ python manage.py runserver
 | 401 | Необходим JWT-токен |
 | 404 | Не найдено произведение или отзыв |
 
-##### Security
+##### Доступ
 
 | Security Schema | Scopes |
 | --- | --- |
@@ -613,14 +613,14 @@ python manage.py runserver
 ### /titles/{title_id}/reviews/{review_id}/comments/{comment_id}/
 
 #### GET
-##### Description:
+##### Описание:
 
 Получить комментарий для отзыва по id.
 
 Права доступа: **Доступно без токена.**
 
 
-##### Parameters
+##### Параметры
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
@@ -628,7 +628,7 @@ python manage.py runserver
 | review_id | path | ID отзыва | Yes | integer |
 | comment_id | path | ID комментария | Yes | integer |
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
@@ -636,14 +636,14 @@ python manage.py runserver
 | 404 | Не найдено произведение, отзыв или комментарий |
 
 #### PATCH
-##### Description:
+##### Описание:
 
 Частично обновить комментарий к отзыву по id.
 
 Права доступа: **Автор комментария, модератор или администратор**.
 
 
-##### Parameters
+##### Параметры
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
@@ -651,7 +651,7 @@ python manage.py runserver
 | review_id | path | ID отзыва | Yes | integer |
 | comment_id | path | ID комментария | Yes | integer |
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
@@ -661,21 +661,21 @@ python manage.py runserver
 | 403 | Нет прав доступа |
 | 404 | Не найдено произведение, отзыв или комментарий |
 
-##### Security
+##### Доступ
 
 | Security Schema | Scopes |
 | --- | --- |
 | jwt-token | write:user,moderator,admin |
 
 #### DELETE
-##### Description:
+##### Описание:
 
 Удалить комментарий к отзыву по id.
 
 Права доступа: **Автор комментария, модератор или администратор**.
 
 
-##### Parameters
+##### Параметры
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
@@ -683,7 +683,7 @@ python manage.py runserver
 | review_id | path | ID отзыва | Yes | integer |
 | comment_id | path | ID комментария | Yes | integer |
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
@@ -692,7 +692,7 @@ python manage.py runserver
 | 403 | Нет прав доступа |
 | 404 | Не найдено произведение, отзыв или комментарий |
 
-##### Security
+##### Доступ
 
 | Security Schema | Scopes |
 | --- | --- |
@@ -701,34 +701,34 @@ python manage.py runserver
 ### /users/
 
 #### GET
-##### Description:
+##### Описание:
 
 Получить список всех пользователей.
 
 Права доступа: **Администратор**
 
 
-##### Parameters
+##### Параметры
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
 | search | query | Поиск по имени пользователя (username) | No | string |
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
 | 200 | Удачное выполнение запроса |
 | 401 | Необходим JWT-токен |
 
-##### Security
+##### Доступ
 
 | Security Schema | Scopes |
 | --- | --- |
 | jwt-token | read:admin |
 
 #### POST
-##### Description:
+##### Описание:
 
 Добавить нового пользователя.
 
@@ -737,7 +737,7 @@ python manage.py runserver
 Поля `email` и `username` должны быть уникальными.
 
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
@@ -746,7 +746,7 @@ python manage.py runserver
 | 401 | Необходим JWT-токен |
 | 403 | Нет прав доступа |
 
-##### Security
+##### Доступ
 
 | Security Schema | Scopes |
 | --- | --- |
@@ -755,20 +755,20 @@ python manage.py runserver
 ### /users/{username}/
 
 #### GET
-##### Description:
+##### Описание:
 
 Получить пользователя по username.
 
 Права доступа: **Администратор**
 
 
-##### Parameters
+##### Параметры
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
 | username | path | Username пользователя | Yes | string |
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
@@ -777,14 +777,14 @@ python manage.py runserver
 | 403 | Нет прав доступа |
 | 404 | Пользователь не найден |
 
-##### Security
+##### Доступ
 
 | Security Schema | Scopes |
 | --- | --- |
 | jwt-token | read:admin |
 
 #### PATCH
-##### Description:
+##### Описание:
 
 Изменить данные пользователя по username.
 
@@ -793,13 +793,13 @@ python manage.py runserver
 Поля `email` и `username` должны быть уникальными.
 
 
-##### Parameters
+##### Параметры
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
 | username | path | Username пользователя | Yes | string |
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
@@ -809,27 +809,27 @@ python manage.py runserver
 | 403 | Нет прав доступа |
 | 404 | Пользователь не найден |
 
-##### Security
+##### Доступ
 
 | Security Schema | Scopes |
 | --- | --- |
 | jwt-token | write:admin |
 
 #### DELETE
-##### Description:
+##### Описание:
 
 Удалить пользователя по username.
 
 Права доступа: **Администратор.**
 
 
-##### Parameters
+##### Параметры
 
 | Name | Located in | Description | Required | Schema |
 | ---- | ---------- | ----------- | -------- | ---- |
 | username | path | Username пользователя | Yes | string |
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
@@ -838,7 +838,7 @@ python manage.py runserver
 | 403 | Нет прав доступа |
 | 404 | Пользователь не найден |
 
-##### Security
+##### Доступ
 
 | Security Schema | Scopes |
 | --- | --- |
@@ -847,27 +847,27 @@ python manage.py runserver
 ### /users/me/
 
 #### GET
-##### Description:
+##### Описание:
 
 Получить данные своей учетной записи
 
 Права доступа: **Любой авторизованный пользователь**
 
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
 | 200 | Удачное выполнение запроса |
 
-##### Security
+##### Доступ
 
 | Security Schema | Scopes |
 | --- | --- |
 | jwt-token | read:admin,moderator,user |
 
 #### PATCH
-##### Description:
+##### Описание:
 
 Изменить данные своей учетной записи
 
@@ -876,14 +876,14 @@ python manage.py runserver
 Поля `email` и `username` должны быть уникальными.
 
 
-##### Responses
+##### Ответ
 
 | Code | Description |
 | ---- | ----------- |
 | 200 | Удачное выполнение запроса |
 | 400 | Отсутствует обязательное поле или оно некорректно |
 
-##### Security
+##### Доступ
 
 | Security Schema | Scopes |
 | --- | --- |
