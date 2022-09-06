@@ -1,91 +1,20 @@
-import secrets
-
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-
-from rest_framework import filters, permissions, status, viewsets
-
-from rest_framework.decorators import action, api_view
+from rest_framework import filters, viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
-from reviews.models import Category, Genre, Review, Title, User
+from reviews.models import Category, Genre, Review, Title
 
-from .extra_functions import send_code_by_email
 from .filters import TitleFilter
-from .mixins import ModelMixins
-from .permissions import AdminPermissions, IsAdminOrReadOnly, ReadOrOwner
+from .mixins import CreateListDestroyViewSet
+from .permissions import IsAdminOrReadOnly, ReadOrOwner
 from .serializers import (CategorySerializer, CommentSerializer,
-                          CreateUserSerialise, GenreSerializer,
-                          RequestCreateUserSerialise, ReviewSerializer,
-                          TitleCreateSerializer, TitleListSerializer,
-                          UsersSerializer)
+                          GenreSerializer, ReviewSerializer,
+                          TitleCreateSerializer, TitleListSerializer)
 
 
-@api_view(['POSt', ])
-def request_for_registration(request):
-    serializer = RequestCreateUserSerialise(data=request.data)
-    if serializer.is_valid(raise_exception=True):
-        serializer.save(confirmation_code=secrets.token_hex(16))
-        send_code_by_email(serializer.instance)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-@api_view(['POST', ])
-def confrim_user(request):
-    serializer = CreateUserSerialise(data=request.data)
-    if serializer.is_valid(raise_exception=True):
-        user = get_object_or_404(User, username=request.data.get('username'))
-        if user.confirmation_code != request.data.get('confirmation_code'):
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-    refresh = RefreshToken.for_user(user)
-    response = {
-        'refresh': str(refresh),
-        'access': str(refresh.access_token)}
-    return Response(data=response, status=status.HTTP_200_OK)
-
-
-class UserViewSet(viewsets.ModelViewSet):
-    """ВьюСет для работы с зарегистрированными пользователями"""
-    queryset = User.objects.all()
-    serializer_class = UsersSerializer
-
-    permission_classes = (permissions.IsAuthenticated, AdminPermissions)
-    # pagination_class = PageNumberPagination
-
-    def get_object(self):
-        user = get_object_or_404(User, username=self.kwargs.get('pk'))
-        return user
-
-    @action(
-        detail=False,
-        methods=['get', 'patch'],
-        permission_classes=[permissions.IsAuthenticated],
-    )
-    def me(self, request):
-
-        if request.method == 'GET':
-            serializer = UsersSerializer(request.user)
-
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
-        if request.method == 'PATCH':
-            # request.data.get('role')
-            serializer = UsersSerializer(
-                request.user, data=request.data, partial=True)
-            if serializer.is_valid(raise_exception=True):
-                if request.user.is_user or request.user.is_moderator:
-                    serializer.save(role=request.user.role)
-                else:
-                    serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
-
-
-# Categories, genres, titles
-class CategoryViewSet(ModelMixins):
+class CategoryViewSet(CreateListDestroyViewSet):
     """Получаем список категорий."""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -98,7 +27,7 @@ class CategoryViewSet(ModelMixins):
     lookup_field = 'slug'
 
 
-class GenreViewSet(ModelMixins):
+class GenreViewSet(CreateListDestroyViewSet):
     """Получаем список жанров."""
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
@@ -139,8 +68,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return title.reviews.all()
 
     def perform_create(self, serializer):
-        title_id = self.kwargs.get('title_id')
-        title = get_object_or_404(Title, id=title_id)
+        title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
         serializer.save(author=self.request.user, title=title)
 
 

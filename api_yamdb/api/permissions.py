@@ -1,4 +1,4 @@
-from rest_framework import exceptions, permissions
+from rest_framework import permissions
 
 
 class AdminPermissions(permissions.BasePermission):
@@ -9,8 +9,8 @@ class AdminPermissions(permissions.BasePermission):
             if request.user.is_admin or request.user.is_staff:
                 return True
             else:
-                raise exceptions.PermissionDenied()
-        raise exceptions.NotAuthenticated()
+                return False
+        return False
 
 
 # Categories, genres, titles

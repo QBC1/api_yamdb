@@ -1,12 +1,11 @@
 from django.urls import include, path
+
 from rest_framework import routers
 
 from api_yamdb.settings import VERSION_URL
-
-from .views import (CategoryViewSet, CommentReviewViewSet,
-                    GenreViewSet, ReviewViewSet, TitleViewSet,
-                    UserViewSet, request_for_registration, confrim_user)
-
+from users.views import UserViewSet, confrim_user, request_for_registration
+from .views import (CategoryViewSet, CommentReviewViewSet, GenreViewSet,
+                    ReviewViewSet, TitleViewSet)
 
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet, basename='users')

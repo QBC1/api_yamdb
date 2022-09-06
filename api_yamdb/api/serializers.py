@@ -1,18 +1,16 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import exceptions, serializers
 
-from reviews.models import Category, Comment, Genre, Review, Title, User
+from rest_framework import serializers
+
+from reviews.models import Category, Comment, Genre, Review, Title
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    title = serializers.SlugRelatedField(
-        slug_field='name',
-        read_only=True
+    title = serializers.PrimaryKeyRelatedField(
+        read_only=True,
     )
-    author = serializers.SlugRelatedField(
-        slug_field='username',
-        read_only=True
-    )
+    author = serializers.StringRelatedField(
+        read_only=True,)
 
     def validate(self, data):
         request = self.context['request']
@@ -31,59 +29,6 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class RequestCreateUserSerialise(serializers.ModelSerializer):
-    username = serializers.CharField(max_length=256)
-    email = serializers.EmailField(max_length=256)
-
-    class Meta:
-        model = User
-        fields = ('username', 'email',)
-
-    def validate_username(self, value):
-        if User.objects.filter(username=value).exists():
-            raise exceptions.ValidationError(
-                "Данное имя пользователя уже используется")
-        if value.lower() == 'me':
-            raise exceptions.ValidationError(
-                "Нельзя создать пользователя с именем 'me'")
-        if not value:
-            raise exceptions.ValidationError(
-                "Имя пользователя не должно быть пустым")
-        return value
-
-    def validate_email(self, value):
-        if User.objects.filter(email=value).exists():
-            raise exceptions.ValidationError(
-                "Данный почтовый адрес уже зарегистрирован")
-        return value
-
-
-class CreateUserSerialise(serializers.ModelSerializer):
-    username = serializers.CharField(max_length=256)
-
-    class Meta:
-        fields = ('username', 'confirmation_code',)
-        model = User
-
-    def validate_username(self, value):
-        if value:
-            return value
-        raise exceptions.ValidationError()
-
-    def validate_confirmation_code(self, value):
-        if value:
-            return value
-        raise exceptions.ValidationError()
-
-
-class UsersSerializer(serializers.ModelSerializer):
-    class Meta:
-        fields = (
-            'username', 'email', 'first_name', 'last_name', 'bio', 'role')
-        model = User
-
-
-# Categories, genres, titles
 class CategorySerializer(serializers.ModelSerializer):
     """Список категорий."""
 
