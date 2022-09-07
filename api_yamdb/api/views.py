@@ -42,13 +42,15 @@ class GenreViewSet(CreateListDestroyViewSet):
 
 class TitleViewSet(viewsets.ModelViewSet):
     """Получаем список произведений"""
-    queryset = Title.objects.annotate(
-        rating=Avg('reviews__score')
-    ).all().order_by('name')
     permission_classes = [IsAdminOrReadOnly, ]
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter
     pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        queryset = Title.objects.annotate(
+            rating=Avg('reviews__score')).all().order_by('name')
+        return queryset
 
     def get_serializer_class(self):
         """Возвращает подходящий сериализатор"""

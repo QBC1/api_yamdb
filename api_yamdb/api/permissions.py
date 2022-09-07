@@ -5,15 +5,10 @@ class AdminPermissions(permissions.BasePermission):
     """Данный класс используем для работыс зарегистрированными
     пользователями"""
     def has_permission(self, request, view):
-        if hasattr(request.user, 'role'):
-            if request.user.is_admin or request.user.is_staff:
-                return True
-            else:
-                return False
-        return False
+        return (request.user.is_authenticated
+                and (request.user.is_admin or request.user.is_staff))
 
 
-# Categories, genres, titles
 class IsAdminOrReadOnly(permissions.BasePermission):
     """Разрешение редактировать только администраторам."""
     def has_permission(self, request, view):
