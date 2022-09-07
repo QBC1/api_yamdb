@@ -195,7 +195,6 @@ python manage.py runserver
   
 
 | Name | Located in | Description | Required | Schema |
-
 | ---- | ---------- | ----------- | -------- | ---- |
 
   
@@ -209,11 +208,8 @@ python manage.py runserver
 ```
 
 | Code | Description |
-
 | ---- | ----------- |
-
 | 200 | Удачное выполнение запроса |
-
 | 400 | Отсутствует обязательное поле или оно некорректно |
 
 
@@ -250,13 +246,9 @@ python manage.py runserver
   
 
 | Code | Description |
-
 | ---- | ----------- |
-
 | 200 | Удачное выполнение запроса |
-
 | 400 | Отсутствует обязательное поле или оно некорректно |
-
 | 404 | Пользователь не найден |
 
   
@@ -281,9 +273,7 @@ python manage.py runserver
   
 
 | Name | Located in | Description | Required | Schema |
-
 | ---- | ---------- | ----------- | -------- | ---- |
-
 | search | query | Поиск по названию категории | No | string |
 
   
@@ -305,9 +295,7 @@ python manage.py runserver
 ]
 ```
 | Code | Description |
-
 | ---- | ----------- |
-
 | 200 | Удачное выполнение запроса |
 
   
@@ -345,15 +333,10 @@ python manage.py runserver
   
 
 | Code | Description |
-
 | ---- | ----------- |
-
 | 201 | Удачное выполнение запроса |
-
 | 400 | Отсутствует обязательное поле или оно некорректно |
-
 | 401 | Необходим JWT-токен |
-
 | 403 | Нет прав доступа |
 
   
@@ -363,9 +346,7 @@ python manage.py runserver
   
 
 | Security Schema | Scopes |
-
 | --- | --- |
-
 | jwt-token | write:admin |
 
   
@@ -379,24 +360,18 @@ python manage.py runserver
 ##### Описание:
 
   
-
 Удалить категорию.
-
   
-
 Права доступа: **Администратор.**
 
-  
-  
+    
 
 ##### Параметры
 
   
 
 | Name | Located in | Description | Required | Schema |
-
 | ---- | ---------- | ----------- | -------- | ---- |
-
 | slug | path | Slug категории | Yes | string |
 
   
@@ -406,15 +381,10 @@ python manage.py runserver
   
 
 | Code | Description |
-
 | ---- | ----------- |
-
 | 204 | Удачное выполнение запроса |
-
 | 401 | Необходим JWT-токен |
-
 | 403 | Нет прав доступа |
-
 | 404 | Категория не найдена |
 
   
@@ -424,9 +394,7 @@ python manage.py runserver
   
 
 | Security Schema | Scopes |
-
 | --- | --- |
-
 | jwt-token | write:admin |
 
   
@@ -455,9 +423,7 @@ python manage.py runserver
   
 
 | Name | Located in | Description | Required | Schema |
-
 | ---- | ---------- | ----------- | -------- | ---- |
-
 | search | query | Поиск по названию жанра | No | string |
 
   
@@ -479,9 +445,7 @@ python manage.py runserver
 ]
  ```
 | Code | Description |
-
 | ---- | ----------- |
-
 | 200 | Удачное выполнение запроса |
 
   
@@ -515,15 +479,10 @@ python manage.py runserver
   
 
 | Code | Description |
-
 | ---- | ----------- |
-
 | 201 | Удачное выполнение запроса |
-
 | 400 | Отсутствует обязательное поле или оно некорректно |
-
 | 401 | Необходим JWT-токен |
-
 | 403 | Нет прав доступа |
 
   
@@ -533,9 +492,7 @@ python manage.py runserver
   
 
 | Security Schema | Scopes |
-
 | --- | --- |
-
 | jwt-token | write:admin |
 
   
@@ -564,9 +521,7 @@ python manage.py runserver
   
 
 | Name | Located in | Description | Required | Schema |
-
 | ---- | ---------- | ----------- | -------- | ---- |
-
 | slug | path | Slug жанра | Yes | string |
 
   
@@ -576,15 +531,10 @@ python manage.py runserver
   
 
 | Code | Description |
-
 | ---- | ----------- |
-
 | 204 | Удачное выполнение запроса |
-
 | 401 | Необходим JWT-токен |
-
 | 403 | Нет прав доступа |
-
 | 404 | Жанр не найден |
 
   
@@ -594,9 +544,7 @@ python manage.py runserver
   
 
 | Security Schema | Scopes |
-
 | --- | --- |
-
 | jwt-token | write:admin |
 
   
@@ -625,15 +573,10 @@ python manage.py runserver
   
 
 | Name | Located in | Description | Required | Schema |
-
 | ---- | ---------- | ----------- | -------- | ---- |
-
 | category | query | фильтрует по полю slug категории | No | string |
-
 | genre | query | фильтрует по полю slug жанра | No | string |
-
 | name | query | фильтрует по названию произведения | No | string |
-
 | year | query | фильтрует по году | No | integer |
 
   
@@ -669,9 +612,7 @@ python manage.py runserver
  ```
 
 | Code | Description |
-
 | ---- | ----------- |
-
 | 200 | Удачное выполнение запроса |
 
   
@@ -714,7 +655,6 @@ python manage.py runserver
   
 
 | Name | Located in | Description | Required | Schema |
-
 | ---- | ---------- | ----------- | -------- | ---- |
 
   
@@ -740,15 +680,10 @@ python manage.py runserver
 }
  ```
 | Code | Description |
-
 | ---- | ----------- |
-
 | 201 | Удачное выполнение запроса |
-
 | 400 | Отсутствует обязательное поле или оно некорректно |
-
 | 401 | Необходим JWT-токен |
-
 | 403 | Нет прав доступа |
 
   
@@ -758,9 +693,7 @@ python manage.py runserver
   
 
 | Security Schema | Scopes |
-
 | --- | --- |
-
 | jwt-token | write:admin |
 
   
@@ -790,9 +723,7 @@ python manage.py runserver
   
 
 | Name | Located in | Description | Required | Schema |
-
 | ---- | ---------- | ----------- | -------- | ---- |
-
 | titles_id | path | ID объекта | Yes | integer |
 
   
@@ -818,11 +749,8 @@ python manage.py runserver
 }
   ```
 | Code | Description |
-
 | ---- | ----------- |
-
 | 200 | Удачное выполнение запроса |
-
 | 404 | Объект не найден |
 
   
@@ -858,9 +786,7 @@ python manage.py runserver
   
 
 | Name | Located in | Description | Required | Schema |
-
 | ---- | ---------- | ----------- | -------- | ---- |
-
 | titles_id | path | ID объекта | Yes | integer |
 
   
@@ -888,15 +814,10 @@ python manage.py runserver
   
 
 | Code | Description |
-
 | ---- | ----------- |
-
 | 200 | Удачное выполнение запроса |
-
 | 401 | Необходим JWT-токен |
-
 | 403 | Нет прав доступа |
-
 | 404 | Объект не найден |
 
   
@@ -906,9 +827,7 @@ python manage.py runserver
   
 
 | Security Schema | Scopes |
-
 | --- | --- |
-
 | jwt-token | write:admin |
 
   
@@ -933,9 +852,7 @@ python manage.py runserver
   
 
 | Name | Located in | Description | Required | Schema |
-
 | ---- | ---------- | ----------- | -------- | ---- |
-
 | titles_id | path | ID объекта | Yes | integer |
 
   
@@ -945,15 +862,10 @@ python manage.py runserver
   
 
 | Code | Description |
-
 | ---- | ----------- |
-
 | 204 | Удачное выполнение запроса |
-
 | 401 | Необходим JWT-токен |
-
 | 403 | Нет прав доступа |
-
 | 404 | Произведение не найдено |
 
   
@@ -963,9 +875,7 @@ python manage.py runserver
   
 
 | Security Schema | Scopes |
-
 | --- | --- |
-
 | jwt-token | write:admin |
 
   
@@ -994,9 +904,7 @@ python manage.py runserver
   
 
 | Name | Located in | Description | Required | Schema |
-
 | ---- | ---------- | ----------- | -------- | ---- |
-
 | title_id | path | ID произведения | Yes | integer |
 
   
@@ -1023,11 +931,8 @@ python manage.py runserver
   
 
 | Code | Description |
-
 | ---- | ----------- |
-
 | 200 | Удачное выполнение запроса |
-
 | 404 | Произведение не найдено |
 
   
@@ -1057,9 +962,7 @@ python manage.py runserver
   
 
 | Name | Located in | Description | Required | Schema |
-
 | ---- | ---------- | ----------- | -------- | ---- |
-
 | title_id | path | ID произведения | Yes | integer |
 
   
@@ -1077,15 +980,10 @@ python manage.py runserver
   ```
 
 | Code | Description |
-
 | ---- | ----------- |
-
 | 201 | Удачное выполнение запроса |
-
 | 400 | Отсутствует обязательное поле или оно некорректно |
-
 | 401 | Необходим JWT-токен |
-
 | 404 | Произведение не найдено |
 
   
@@ -1095,9 +993,7 @@ python manage.py runserver
   
 
 | Security Schema | Scopes |
-
 | --- | --- |
-
 | jwt-token | write:user,moderator,admin |
 
   
@@ -1126,11 +1022,8 @@ python manage.py runserver
   
 
 | Name | Located in | Description | Required | Schema |
-
 | ---- | ---------- | ----------- | -------- | ---- |
-
 | title_id | path | ID произведения | Yes | integer |
-
 | review_id | path | ID отзыва | Yes | integer |
 
   
@@ -1147,11 +1040,8 @@ python manage.py runserver
  ``` 
 
 | Code | Description |
-
 | ---- | ----------- |
-
 | 200 | Удачное выполнение запроса |
-
 | 404 | Произведение или отзыв не найден |
 
   
@@ -1181,11 +1071,8 @@ python manage.py runserver
   
 
 | Name | Located in | Description | Required | Schema |
-
 | ---- | ---------- | ----------- | -------- | ---- |
-
 | title_id | path | ID произведения | Yes | integer |
-
 | review_id | path | ID отзыва | Yes | integer |
 
   
@@ -1200,17 +1087,11 @@ python manage.py runserver
 }
 ```
 | Code | Description |
-
 | ---- | ----------- |
-
 | 200 | Удачное выполнение запроса |
-
 | 400 | Отсутствует обязательное поле или оно некорректно |
-
 | 401 | Необходим JWT-токен |
-
 | 403 | Нет прав доступа |
-
 | 404 | Произведение не найдено |
 
   
@@ -1220,9 +1101,7 @@ python manage.py runserver
   
 
 | Security Schema | Scopes |
-
 | --- | --- |
-
 | jwt-token | write:user,moderator,admin |
 
   
@@ -1247,11 +1126,8 @@ python manage.py runserver
   
 
 | Name | Located in | Description | Required | Schema |
-
 | ---- | ---------- | ----------- | -------- | ---- |
-
 | title_id | path | ID произведения | Yes | integer |
-
 | review_id | path | ID отзыва | Yes | integer |
 
   
@@ -1261,15 +1137,10 @@ python manage.py runserver
   
 
 | Code | Description |
-
 | ---- | ----------- |
-
 | 204 | Удачное выполнение запроса |
-
 | 401 | Необходим JWT-токен |
-
 | 403 | Нет прав доступа |
-
 | 404 | Произведение или отзыв не найдены |
 
   
@@ -1279,9 +1150,7 @@ python manage.py runserver
   
 
 | Security Schema | Scopes |
-
 | --- | --- |
-
 | jwt-token | write:user,moderator,admin |
 
   
@@ -1310,11 +1179,8 @@ python manage.py runserver
   
 
 | Name | Located in | Description | Required | Schema |
-
 | ---- | ---------- | ----------- | -------- | ---- |
-
 | title_id | path | ID произведения | Yes | integer |
-
 | review_id | path | ID отзыва | Yes | integer |
 
   
@@ -1340,11 +1206,8 @@ python manage.py runserver
   
 
 | Code | Description |
-
 | ---- | ----------- |
-
 | 200 | Удачное выполнение запроса |
-
 | 404 | Не найдено произведение или отзыв |
 
   
@@ -1373,11 +1236,8 @@ python manage.py runserver
   
 
 | Name | Located in | Description | Required | Schema |
-
 | ---- | ---------- | ----------- | -------- | ---- |
-
 | title_id | path | ID произведения | Yes | integer |
-
 | review_id | path | ID отзыва | Yes | integer |
 
   
@@ -1393,15 +1253,10 @@ python manage.py runserver
 ```
 
 | Code | Description |
-
 | ---- | ----------- |
-
 | 201 | Удачное выполнение запроса |
-
 | 400 | Отсутствует обязательное поле или оно некорректно |
-
 | 401 | Необходим JWT-токен |
-
 | 404 | Не найдено произведение или отзыв |
 
   
@@ -1411,9 +1266,7 @@ python manage.py runserver
   
 
 | Security Schema | Scopes |
-
 | --- | --- |
-
 | jwt-token | write:user,moderator,admin |
 
   
@@ -1442,13 +1295,9 @@ python manage.py runserver
   
 
 | Name | Located in | Description | Required | Schema |
-
 | ---- | ---------- | ----------- | -------- | ---- |
-
 | title_id | path | ID произведения | Yes | integer |
-
 | review_id | path | ID отзыва | Yes | integer |
-
 | comment_id | path | ID комментария | Yes | integer |
 
   
@@ -1465,11 +1314,8 @@ python manage.py runserver
   
 
 | Code | Description |
-
 | ---- | ----------- |
-
 | 200 | Удачное выполнение запроса |
-
 | 404 | Не найдено произведение, отзыв или комментарий |
 
   
@@ -1499,13 +1345,9 @@ python manage.py runserver
   
 
 | Name | Located in | Description | Required | Schema |
-
 | ---- | ---------- | ----------- | -------- | ---- |
-
 | title_id | path | ID произведения | Yes | integer |
-
 | review_id | path | ID отзыва | Yes | integer |
-
 | comment_id | path | ID комментария | Yes | integer |
 
   
@@ -1520,17 +1362,11 @@ python manage.py runserver
 }
 ```
 | Code | Description |
-
 | ---- | ----------- |
-
 | 200 | Удачное выполнение запроса |
-
 | 400 | Отсутствует обязательное поле или оно некорректно |
-
 | 401 | Необходим JWT-токен |
-
 | 403 | Нет прав доступа |
-
 | 404 | Не найдено произведение, отзыв или комментарий |
 
   
@@ -1540,9 +1376,7 @@ python manage.py runserver
   
 
 | Security Schema | Scopes |
-
 | --- | --- |
-
 | jwt-token | write:user,moderator,admin |
 
   
@@ -1567,13 +1401,9 @@ python manage.py runserver
   
 
 | Name | Located in | Description | Required | Schema |
-
 | ---- | ---------- | ----------- | -------- | ---- |
-
 | title_id | path | ID произведения | Yes | integer |
-
 | review_id | path | ID отзыва | Yes | integer |
-
 | comment_id | path | ID комментария | Yes | integer |
 
   
@@ -1583,15 +1413,10 @@ python manage.py runserver
   
 
 | Code | Description |
-
 | ---- | ----------- |
-
 | 204 | Удачное выполнение запроса |
-
 | 401 | Необходим JWT-токен |
-
 | 403 | Нет прав доступа |
-
 | 404 | Не найдено произведение, отзыв или комментарий |
 
   
@@ -1601,9 +1426,7 @@ python manage.py runserver
   
 
 | Security Schema | Scopes |
-
 | --- | --- |
-
 | jwt-token | write:user,moderator,admin |
 
   
@@ -1630,11 +1453,8 @@ python manage.py runserver
 ##### Параметры
 
   
-
 | Name | Located in | Description | Required | Schema |
-
 | ---- | ---------- | ----------- | -------- | ---- |
-
 | search | query | Поиск по имени пользователя (username) | No | string |
 
   
@@ -1660,13 +1480,9 @@ python manage.py runserver
 ]
 ```
   
-
 | Code | Description |
-
 | ---- | ----------- |
-
 | 200 | Удачное выполнение запроса |
-
 | 401 | Необходим JWT-токен |
 
   
@@ -1676,9 +1492,7 @@ python manage.py runserver
   
 
 | Security Schema | Scopes |
-
 | --- | --- |
-
 | jwt-token | read:admin |
 
   
@@ -1725,15 +1539,10 @@ python manage.py runserver
   
 
 | Code | Description |
-
 | ---- | ----------- |
-
 | 201 | Удачное выполнение запроса |
-
 | 400 | Отсутствует обязательное поле или оно некорректно |
-
 | 401 | Необходим JWT-токен |
-
 | 403 | Нет прав доступа |
 
   
@@ -1743,9 +1552,7 @@ python manage.py runserver
   
 
 | Security Schema | Scopes |
-
 | --- | --- |
-
 | jwt-token | write:admin |
 
   
@@ -1774,9 +1581,7 @@ python manage.py runserver
   
 
 | Name | Located in | Description | Required | Schema |
-
 | ---- | ---------- | ----------- | -------- | ---- |
-
 | username | path | Username пользователя | Yes | string |
 
   
@@ -1795,15 +1600,10 @@ python manage.py runserver
   
 
 | Code | Description |
-
 | ---- | ----------- |
-
 | 200 | Удачное выполнение запроса |
-
 | 401 | Необходим JWT-токен |
-
 | 403 | Нет прав доступа |
-
 | 404 | Пользователь не найден |
 
   
@@ -1813,9 +1613,7 @@ python manage.py runserver
   
 
 | Security Schema | Scopes |
-
 | --- | --- |
-
 | jwt-token | read:admin |
 
   
@@ -1853,9 +1651,7 @@ python manage.py runserver
   
 
 | Name | Located in | Description | Required | Schema |
-
 | ---- | ---------- | ----------- | -------- | ---- |
-
 | username | path | Username пользователя | Yes | string |
 
   
@@ -1872,17 +1668,11 @@ python manage.py runserver
 }
 ```
 | Code | Description |
-
 | ---- | ----------- |
-
 | 200 | Удачное выполнение запроса |
-
 | 400 | Отсутствует обязательное поле или оно некорректно |
-
 | 401 | Необходим JWT-токен |
-
 | 403 | Нет прав доступа |
-
 | 404 | Пользователь не найден |
 
   
@@ -1892,9 +1682,7 @@ python manage.py runserver
   
 
 | Security Schema | Scopes |
-
 | --- | --- |
-
 | jwt-token | write:admin |
 
   
@@ -1919,9 +1707,7 @@ python manage.py runserver
   
 
 | Name | Located in | Description | Required | Schema |
-
 | ---- | ---------- | ----------- | -------- | ---- |
-
 | username | path | Username пользователя | Yes | string |
 
   
@@ -1931,15 +1717,10 @@ python manage.py runserver
   
 
 | Code | Description |
-
 | ---- | ----------- |
-
 | 204 | Удачное выполнение запроса |
-
 | 401 | Необходим JWT-токен |
-
 | 403 | Нет прав доступа |
-
 | 404 | Пользователь не найден |
 
   
@@ -1949,9 +1730,7 @@ python manage.py runserver
   
 
 | Security Schema | Scopes |
-
 | --- | --- |
-
 | jwt-token | write:admin |
 
   
@@ -1989,9 +1768,7 @@ python manage.py runserver
   
 
 | Code | Description |
-
 | ---- | ----------- |
-
 | 200 | Удачное выполнение запроса |
 
   
@@ -2049,11 +1826,8 @@ python manage.py runserver
   
 
 | Code | Description |
-
 | ---- | ----------- |
-
 | 200 | Удачное выполнение запроса |
-
 | 400 | Отсутствует обязательное поле или оно некорректно |
 
   
@@ -2063,7 +1837,5 @@ python manage.py runserver
   
 
 | Security Schema | Scopes |
-
 | --- | --- |
-
 | jwt-token | write:admin,moderator,user |
