@@ -1,6 +1,6 @@
 from django.core.mail import send_mail
 
-from api_yamdb.settings import PROJECT_EMAIL, URL_FOR_GET_TOKEN
+from api_yamdb.settings import PROJECT_EMAIL
 
 
 def send_code_by_email(user):
@@ -9,7 +9,7 @@ def send_code_by_email(user):
     email = user.email
     message = (
         f'''Для регистрации на сайте пройдите по ссылке:
-            {URL_FOR_GET_TOKEN}
+            'http://127.0.0.1:8000/api/v1/auth/token/'
             с параметрами username: "{username}" confirmation_code="{code}"
             ''')
     send_mail(
