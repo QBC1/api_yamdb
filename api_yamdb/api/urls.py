@@ -21,6 +21,6 @@ urlpatterns = [
     path(
         VERSION_URL + 'auth/signup/',
         request_for_registration, name='request_for_registration'),
-    path(VERSION_URL + 'auth/token/', confrim_user, name='confrim_user'),
+    path(VERSION_URL + 'auth/token/', confrim_user, name='user_confrim'),
     path(VERSION_URL, include(router.urls)),
 ]
