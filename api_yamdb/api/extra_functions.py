@@ -7,9 +7,10 @@ def send_code_by_email(user):
     username = user.username
     code = user.confirmation_code
     email = user.email
+    get_token = "{% url 'api:confrim_user' %}"
     message = (
         f'''Для регистрации на сайте пройдите по ссылке:
-            'http://127.0.0.1:8000/api/v1/auth/token/'
+            {get_token}
             с параметрами username: "{username}" confirmation_code="{code}"
             ''')
     send_mail(
