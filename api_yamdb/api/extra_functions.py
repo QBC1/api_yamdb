@@ -1,6 +1,4 @@
 from django.core.mail import send_mail
-from django.http import HttpResponseRedirect
-from django.urls import reverse
 
 from api_yamdb.settings import PROJECT_EMAIL
 
