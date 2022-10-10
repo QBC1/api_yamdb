@@ -1,4 +1,7 @@
+from abc import get_cache_token
 from django.core.mail import send_mail
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 from api_yamdb.settings import PROJECT_EMAIL
 
@@ -7,9 +10,10 @@ def send_code_by_email(user):
     username = user.username
     code = user.confirmation_code
     email = user.email
+    get_token = HttpResponseRedirect(reverse('user_confrim'))
     message = (
         f'''Для регистрации на сайте пройдите по ссылке:
-            http://127.0.0.1:8000/api/v1/auth/token/
+            {get_token}
             с параметрами username: "{username}" confirmation_code="{code}"
             ''')
     send_mail(
