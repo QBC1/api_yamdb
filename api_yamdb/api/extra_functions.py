@@ -1,4 +1,3 @@
-from abc import get_cache_token
 from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
 from django.urls import reverse
