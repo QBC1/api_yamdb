@@ -5,17 +5,13 @@ from django.urls import reverse
 from api_yamdb.settings import PROJECT_EMAIL
 
 
-def redirect_to_token(request):
-    return HttpResponseRedirect(reverse('user_confrim'))
-
-
 def send_code_by_email(user):
     username = user.username
     code = user.confirmation_code
     email = user.email
     message = (
         f'''Для регистрации на сайте пройдите по ссылке:
-            {redirect_to_token}
+            http://127.0.0.1:8000/api/v1/auth/token/
             с параметрами username: "{username}" confirmation_code="{code}"
             ''')
     send_mail(
