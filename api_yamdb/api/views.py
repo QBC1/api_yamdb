@@ -22,7 +22,7 @@ from .serializers import (CategorySerializer, CommentSerializer,
                           UsersSerializer)
 
 
-@api_view(['POSt', ])
+@api_view(['POST', ])
 def request_for_registration(request):
     serializer = RequestCreateUserSerialise(data=request.data)
     serializer.is_valid(raise_exception=True)
